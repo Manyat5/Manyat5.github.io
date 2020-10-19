@@ -6,17 +6,22 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://wuisgoing.github.io">
-  <title>Archives: 2020/8 | Coder Area</title>
+  <title>Java中关于异步的使用 | Coder Area</title>
   <meta name="generator" content="hexo-theme-yilia-plus">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   
-  <meta property="og:type" content="website">
-<meta property="og:title" content="Coder Area">
-<meta property="og:url" content="http://wuisgoing.github.io/archives/2020/08/index.html">
+  <meta name="description" content="在Java开发中，我们不可避免地会接触到异步的使用，如何优雅的使用异步，是我们Java程序员必修的一门课程，下面这些是我个人对使用过的一些异步方式所进行的总结。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Java中关于异步的使用">
+<meta property="og:url" content="http://wuisgoing.github.io/2020/10/04/Java%E4%B8%AD%E5%85%B3%E4%BA%8E%E5%BC%82%E6%AD%A5%E7%9A%84%E4%BD%BF%E7%94%A8/index.html">
 <meta property="og:site_name" content="Coder Area">
+<meta property="og:description" content="在Java开发中，我们不可避免地会接触到异步的使用，如何优雅的使用异步，是我们Java程序员必修的一门课程，下面这些是我个人对使用过的一些异步方式所进行的总结。">
 <meta property="og:locale">
+<meta property="article:published_time" content="2020-10-04T02:13:48.598Z">
+<meta property="article:modified_time" content="2020-10-04T07:20:12.079Z">
 <meta property="article:author" content="WuIsGoing">
-<meta property="article:tag" content="spring,java,源码,reactor">
+<meta property="article:tag" content="java -">
+<meta property="article:tag" content="spring -">
 <meta name="twitter:card" content="summary">
   
     <link rel="alternative" href="/atom.xml" title="Coder Area" type="application/atom+xml">
@@ -155,120 +160,251 @@
               class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
-  
-  
+            <article id="post-Java中关于异步的使用" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
     
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2020" class="archive-year">2020</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	
-<a href="/2020/08/15/Spring-in-action%E4%B9%8BReactor/" class="archive-article-date">
-        <time datetime="2020-08-15T06:46:58.430Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-08-15</time>
-</a>
-
-        </div>
-    	 
+      <header class="article-header">
   
-    <h1 itemprop="name">
-	
-	  <a class="archive-article-title" href="/2020/08/15/Spring-in-action%E4%B9%8BReactor/" target="_blank">spring in action之Reactor</a>
   
+    <h1 class="article-title" itemprop="name">
+      Java中关于异步的使用
     </h1>
   
 
 
-        <div class="article-info info-on-right">
-          
+  
+  
+<a href="/2020/10/04/Java%E4%B8%AD%E5%85%B3%E4%BA%8E%E5%BC%82%E6%AD%A5%E7%9A%84%E4%BD%BF%E7%94%A8/" class="archive-article-date">
+        <time datetime="2020-10-04T02:13:48.598Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-10-04</time>
+</a>
+
+  
+  
+    
+<div style="margin-top:10px;">
+  <span class="post-time">
+    <span class="post-meta-item-icon">
+      <!-- fonts.scss -->
+      <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
+      <i class="icon-statistics"></i>
+      <span class="post-meta-item-text"> 字数统计:</span>
+      <span class="post-count">1.5k字</span>
+    </span>
+  </span>
+
+  <span class="post-time">
+    &nbsp; | &nbsp;
+    <span class="post-meta-item-icon">
+      <i class="icon-book icon"></i>
+      <span class="post-meta-item-text"> 阅读时长≈</span>
+      <span class="post-count">5分</span>
+    </span>
+  </span>
+</div>
+
+
+  
+  </header>
+  
+  <div class="article-entry" itemprop="articleBody">
+    
+    <p>在Java开发中，我们不可避免地会接触到异步的使用，如何优雅的使用异步，是我们Java程序员必修的一门课程，下面这些是我个人对使用过的一些异步方式所进行的总结。<a id="more"></a></p>
+<h2 id="1-new-Thread-Runnable-start"><a href="#1-new-Thread-Runnable-start" class="headerlink" title="1. new Thread(Runnable).start()"></a>1. new Thread(Runnable).start()</h2><p>异步也离不开多线程，在我们刚开始接触多线程的时候，我们最为熟知的方式大概就是这种了</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Runnable task =  () -&gt; System.out.println(<span class="string">&quot;do something&quot;</span>);</span><br><span class="line"><span class="keyword">new</span> Thread(task).start();</span><br></pre></td></tr></table></figure>
+
+<p>但是，在实际开发中这种方式是不允许的，如果安装了alibaba的编程规范插件的话，就会得到这么一条提示：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">请不要显式使用线程，请使用线程池！</span><br></pre></td></tr></table></figure>
+
+<p>这是因为线程的创建和销毁都是会造成计算机资源的浪费的，因此推荐我们使用线程池。</p>
+<h2 id="2-线程池"><a href="#2-线程池" class="headerlink" title="2. 线程池"></a>2. 线程池</h2><p>线程池的使用方式其实跟上面的类似</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 创建线程池</span></span><br><span class="line">ExecutorService service = getExcutorService(..);</span><br><span class="line"><span class="comment">// 提交并执行异步任务</span></span><br><span class="line">Runnable task =  () -&gt; System.out.println(<span class="string">&quot;do something&quot;</span>);</span><br><span class="line">service.submit(task);</span><br></pre></td></tr></table></figure>
+
+<p>与直接new 一个 <code>Thread</code>不同，使用线程池来执行异步任务，我们可以得到一个返回值Future。</p>
+<ul>
+<li>拿到这个Future，我们可以判断该任务是否完成（<code>isDone()</code>），</li>
+<li>当我们要执行要有返回值的异步任务的时候，我们可以传入带返回值的异步任务Callable，这时候返回的<code>Future</code>可以调用其<code>get()</code>方法来获取异步方法的返回值。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">Callable&lt;String&gt; callable = () -&gt; <span class="string">&quot;get async result&quot;</span>;</span><br><span class="line">Future&lt;String&gt; future = service.submit(callable);</span><br><span class="line"><span class="keyword">if</span>(future.isDone())&#123;</span><br><span class="line">  <span class="comment">// 因为异步任务执行的过程中可能会出现异常，因此这里需要我们来处理可能会抛出的异常</span></span><br><span class="line">  String asyncResult = future.get();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<h3 id="线程池的线程不会被销毁吗？"><a href="#线程池的线程不会被销毁吗？" class="headerlink" title="线程池的线程不会被销毁吗？"></a>线程池的线程不会被销毁吗？</h3><p>线程池中的线程是<code>ThreadPoolExecutor</code>中的内部类<code>Worker</code>，该内部调用的run方法实际是一个循环</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">final</span> <span class="keyword">void</span> <span class="title">runWorker</span><span class="params">(Worker w)</span> </span>&#123;</span><br><span class="line">        Thread wt = Thread.currentThread();</span><br><span class="line">        Runnable task = w.firstTask;</span><br><span class="line">        w.firstTask = <span class="keyword">null</span>;</span><br><span class="line">        w.unlock(); <span class="comment">// allow interrupts</span></span><br><span class="line">        <span class="keyword">boolean</span> completedAbruptly = <span class="keyword">true</span>;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">              <span class="comment">// 实际的死循环其实是这个getTask方法，这个getTask方法实际上是个死循环，里面必须会返回一个task，因此永远退出不了这个while循环</span></span><br><span class="line">            <span class="keyword">while</span> (task != <span class="keyword">null</span> || (task = getTask()) != <span class="keyword">null</span>) &#123;</span><br><span class="line">              ...</span><br></pre></td></tr></table></figure>
+
+<p>因此这个Worker线程实际上是永远不会被销毁的，而是一直在执行任务，那么当该线程池没有被销毁，里面的线程也不会被销毁。</p>
+<h2 id="3-Spring中的异步"><a href="#3-Spring中的异步" class="headerlink" title="3. Spring中的异步"></a>3. Spring中的异步</h2><p>spring框架内部有自己的异步注解：<code>@Aysnc</code>，将该注解注解到Service的方法中，该方法则会被自动代理成交给线程池来执行任务</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Service</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">ServiceA</span> </span>&#123;</span><br><span class="line">    <span class="meta">@Async</span></span><br><span class="line">  <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">doSomethingA</span><span class="params">()</span></span>&#123;</span><br><span class="line">    ...</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Spring源代码：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// org.springframework.aop.interceptor.AsyncExecutionInterceptor#invoke</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> Object <span class="title">invoke</span><span class="params">(<span class="keyword">final</span> MethodInvocation invocation)</span> <span class="keyword">throws</span> Throwable </span>&#123;</span><br><span class="line">        Class&lt;?&gt; targetClass = (invocation.getThis() != <span class="keyword">null</span> ? AopUtils.getTargetClass(invocation.getThis()) : <span class="keyword">null</span>);</span><br><span class="line">        Method specificMethod = ClassUtils.getMostSpecificMethod(invocation.getMethod(), targetClass);</span><br><span class="line">        <span class="keyword">final</span> Method userDeclaredMethod = BridgeMethodResolver.findBridgedMethod(specificMethod);</span><br><span class="line"></span><br><span class="line">        AsyncTaskExecutor executor = determineAsyncExecutor(userDeclaredMethod);</span><br><span class="line">        <span class="keyword">if</span> (executor == <span class="keyword">null</span>) &#123;</span><br><span class="line">            <span class="keyword">throw</span> <span class="keyword">new</span> IllegalStateException(</span><br><span class="line">                    <span class="string">&quot;No executor specified and no default executor set on AsyncExecutionInterceptor either&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">// spring将方法封装成一个callable对象</span></span><br><span class="line">        Callable&lt;Object&gt; task = () -&gt; &#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                Object result = invocation.proceed();</span><br><span class="line">                <span class="keyword">if</span> (result <span class="keyword">instanceof</span> Future) &#123;</span><br><span class="line">                    <span class="keyword">return</span> ((Future&lt;?&gt;) result).get();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">catch</span> (ExecutionException ex) &#123;</span><br><span class="line">                handleError(ex.getCause(), userDeclaredMethod, invocation.getArguments());</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">catch</span> (Throwable ex) &#123;</span><br><span class="line">                handleError(ex, userDeclaredMethod, invocation.getArguments());</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">        &#125;;</span><br><span class="line">        <span class="comment">// 最终交给线程池来执行这个由spring为我们封装的callable对象</span></span><br><span class="line">        <span class="keyword">return</span> doSubmit(task, executor, invocation.getMethod().getReturnType());</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>但是，使用spring的异步注解容易遇到循环依赖的问题，如果两个service都使用了 <code>@Aysnc</code>注解并且相互依赖，那么很有可能在spring启动的时候出现循环以来的问题。</p>
+<h2 id="4-CompletableFuture"><a href="#4-CompletableFuture" class="headerlink" title="4. CompletableFuture"></a>4. CompletableFuture</h2><p>这是一个JDK1.8推出的类，该类对异步任务的执行非常灵活。内部封装了一个线程池，默认为ForkJoinPool。</p>
+<p>如果我们要执行一个不带返回值的异步任务：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CompletableFuture.runAsync(() -&gt; ...<span class="keyword">do</span> async task)</span><br></pre></td></tr></table></figure>
+
+<p>执行带返回值的异步方法：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CompletableFuture.supplyAsync(()-&gt; ...带返回值的方法)</span><br></pre></td></tr></table></figure>
+
+<p>如果我们需要异步任务返回的结果来执行另一个异步任务</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">CompletableFuture</span><br><span class="line">  <span class="comment">// 第一个带返回结果异步任务</span></span><br><span class="line">  .supplyAsync(Suplier&lt;T&gt; s)</span><br><span class="line">  <span class="comment">// 第二个异步任务，会传入第一个异步任务的执行结果T，并且执行完毕后再次返回一个异步结果</span></span><br><span class="line">  .thenApply(Function&lt;T,U&gt; f)</span><br><span class="line">  <span class="comment">// 第三个异步任务，接收第二个异步任务的结果作为参数，执行不带返回值的异步任务</span></span><br><span class="line">  .thenAccept(Consumer&lt;? <span class="keyword">super</span> T&gt; action)；</span><br></pre></td></tr></table></figure>
+
+<p>注意，<code>CompleteFuture</code>只有前面执行的任务成功后，才会接着执行下面的任务</p>
+<p>CompleteFuture不仅仅可以有序地执行异步任务，并且可以对异常进行处理:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 接着使用上面的代码</span></span><br><span class="line">CompletableFuture</span><br><span class="line">  <span class="comment">// 第一个带返回结果异步任务</span></span><br><span class="line">  .supplyAsync(Suplier&lt;T&gt; s)</span><br><span class="line">  <span class="comment">// 第二个异步任务，会传入第一个异步任务的执行结果T，并且执行完毕后再次返回一个异步结果</span></span><br><span class="line">  .thenApply(Function&lt;T,U&gt; f)</span><br><span class="line">  <span class="comment">// 第三个异步任务，接收第二个异步任务的结果作为参数，执行不带返回值的异步任务</span></span><br><span class="line">  .thenAccept(Consumer&lt;? <span class="keyword">super</span> T&gt; action)</span><br><span class="line">  <span class="comment">// 上面所有的异步任务，只要其中某一个异步任务出错，都会进入这个exceptionally当中来进行处理</span></span><br><span class="line">  .exceptionally(throwable-&gt; &#123;对异常进行处理，并且可以返回结果&#125;)</span><br></pre></td></tr></table></figure>
+
+<p>其实该类的使用跟Java8 的Stream API十分地相似，多个异步任务串成一条流水线，井然有序地进行，如果中间出了错，那么就会自动走到异常处理步骤，自动避免了”回调地狱“这样的情况。在处理比较复杂的异步任务的时候，CompletableFuture是非常值得考虑使用的，它不仅内部封装了步骤方法，并且提高了代码简洁度。</p>
+
+    
+
+    
+
+    
+
+  </div>
+  <div class="article-info article-info-index">
+    
+    
 	<div class="article-tag tagcloud">
 		<i class="icon-price-tags icon"></i>
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">Java</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">java -</a>
         		</li>
       		 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">Reactor</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">stream</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">spring -</a>
         		</li>
       		
 		</ul>
 	</div>
 
-          
+    
 
+    
+
+    
+    
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <!-- <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a> -->
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
         </div>
-        <div class="clearfix"></div>
-    </header>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+     <!-- <img src="//pan.baidu.com/share/qrcode?url=http://wuisgoing.github.io/2020/10/04/Java%E4%B8%AD%E5%85%B3%E4%BA%8E%E5%BC%82%E6%AD%A5%E7%9A%84%E4%BD%BF%E7%94%A8/" alt="微信分享二维码"> -->
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+
+    
+    <div class="clearfix"></div>
+  </div>
   </div>
 </article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	
-<a href="/2020/08/05/%E6%B7%B1%E5%85%A5SpringAOP/" class="archive-article-date">
-        <time datetime="2020-08-05T12:23:40.390Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-08-05</time>
-</a>
 
+
+<nav id="article-nav">
+  
+  
+    <a href="/2020/08/15/Spring-in-action%E4%B9%8BReactor/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">spring in action之Reactor</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
         </div>
-    	 
-  
-    <h1 itemprop="name">
-	
-	  <a class="archive-article-title" href="/2020/08/05/%E6%B7%B1%E5%85%A5SpringAOP/" target="_blank">深入SpringAOP</a>
-  
-    </h1>
-  
+        
+        
+    </div>
+</aside>
 
 
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">Spring</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">Java</a>
-        		</li>
-      		
-		</ul>
-	</div>
 
-          
 
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-  
-    </div></section>
-  
 
-    
+
+
+
+
+
+  <div id="giteement-ctn"></div>
+  
+    <link rel="stylesheet" href="/lib/default.css">
+    <script src="/lib/giteement.browser.js"></script>
+  
+  <script>
+  <!-- id: "Java中关于异步的使用" -->
+  var giteement = new Giteement({
+    id: '20201004101348',
+    owner: 'wu_wenyi',
+    repo: 'hexo-blog-comment',
+    backcall_uri: 'https://wuisgoing.github.io',
+    oauth_uri: 'https://cors-anywhere.herokuapp.com/https://gitee.com/oauth/token',
+    oauth: {
+      client_id: 'db19ad3b78fbd17e56d67e9c2de391ace26608a154035f0d4fa2e6a1b7da37b2',
+      client_secret: '156cdf1df28318e0aa8eee67ce683fa30c293c6ca8a95f7fc32b107be70c70b2'
+    },
+  })
+  giteement.render('giteement-ctn')
+  </script>
+
+
+
+
+
+
 
 
           </div>
@@ -297,8 +433,8 @@
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: false,
-		isArchive: true,
+		isPost: true,
+		isArchive: false,
 		isTag: false,
 		isCategory: false,
 		open_in_new: true,
