@@ -6,18 +6,27 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://wuisgoing.github.io">
-  <title>Tag: Java | Coder Area</title>
+  <title>《MySQL技术内幕-InnoDB存储引擎》学习笔记 | Coder Area</title>
   <meta name="generator" content="hexo-theme-yilia-plus">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   
-  <meta property="og:type" content="website">
-<meta property="og:title" content="Coder Area">
-<meta property="og:url" content="http://wuisgoing.github.io/tags/Java/index.html">
+  <meta name="description" content="什么是数据库？  数据库是文件的集合，是依照某种数据模型组织起来并存放于二级存储器中的数据集合；  数据库实例是程序于用户与操作做系统之间的一层数据管理软件，用户对数据库数据的任何操作（如数据库的定义、查询、运行控制）都是在数据库实例下进行的，只有通过数据库实例才能和数据库打交道。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="《MySQL技术内幕-InnoDB存储引擎》学习笔记">
+<meta property="og:url" content="http://wuisgoing.github.io/2020/10/24/%E3%80%8AMySQL%E6%8A%80%E6%9C%AF%E5%86%85%E5%B9%95-InnoDB%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E%E3%80%8B%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/index.html">
 <meta property="og:site_name" content="Coder Area">
+<meta property="og:description" content="什么是数据库？  数据库是文件的集合，是依照某种数据模型组织起来并存放于二级存储器中的数据集合；  数据库实例是程序于用户与操作做系统之间的一层数据管理软件，用户对数据库数据的任何操作（如数据库的定义、查询、运行控制）都是在数据库实例下进行的，只有通过数据库实例才能和数据库打交道。">
 <meta property="og:locale">
+<meta property="og:image" content="http://images.cnblogs.com/cnblogs_com/aspnethot/Pic10.JPG">
+<meta property="og:image" content="https://images2018.cnblogs.com/blog/919737/201804/919737-20180408160535653-284016311.jpg">
+<meta property="og:image" content="https://images2018.cnblogs.com/blog/919737/201804/919737-20180408164025591-158405878.jpg">
+<meta property="article:published_time" content="2020-10-24T15:13:53.058Z">
+<meta property="article:modified_time" content="2020-11-10T10:25:09.760Z">
 <meta property="article:author" content="WuIsGoing">
-<meta property="article:tag" content="spring,java,源码,reactor">
+<meta property="article:tag" content="database">
+<meta property="article:tag" content="mysql">
 <meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://images.cnblogs.com/cnblogs_com/aspnethot/Pic10.JPG">
   
     <link rel="alternative" href="/atom.xml" title="Coder Area" type="application/atom+xml">
   
@@ -155,224 +164,454 @@
               class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
-  
-  
+            <article id="post-《MySQL技术内幕-InnoDB存储引擎》学习笔记" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
     
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2022" class="archive-year">2022</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	
-<a href="/2022/05/30/%E8%A7%A3%E5%86%B3springboot%E4%B8%ADfat-jar%E7%9A%84%E5%8A%A8%E6%80%81%E7%BC%96%E8%AF%91%E9%97%AE%E9%A2%98/" class="archive-article-date">
-        <time datetime="2022-05-30T13:54:38.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-05-30</time>
-</a>
-
-        </div>
-    	 
+      <header class="article-header">
   
-    <h1 itemprop="name">
-	
-	  <a class="archive-article-title" href="/2022/05/30/%E8%A7%A3%E5%86%B3springboot%E4%B8%ADfat-jar%E7%9A%84%E5%8A%A8%E6%80%81%E7%BC%96%E8%AF%91%E9%97%AE%E9%A2%98/" target="_blank">解决springboot中fat-jar的动态编译问题</a>
   
+    <h1 class="article-title" itemprop="name">
+      《MySQL技术内幕-InnoDB存储引擎》学习笔记
     </h1>
   
 
 
-        <div class="article-info info-on-right">
-          
+  
+  
+<a href="/2020/10/24/%E3%80%8AMySQL%E6%8A%80%E6%9C%AF%E5%86%85%E5%B9%95-InnoDB%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E%E3%80%8B%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="archive-article-date">
+        <time datetime="2020-10-24T15:13:53.058Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-10-24</time>
+</a>
+
+  
+  
+    
+<div style="margin-top:10px;">
+  <span class="post-time">
+    <span class="post-meta-item-icon">
+      <!-- fonts.scss -->
+      <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
+      <i class="icon-statistics"></i>
+      <span class="post-meta-item-text"> 字数统计:</span>
+      <span class="post-count">4.8k字</span>
+    </span>
+  </span>
+
+  <span class="post-time">
+    &nbsp; | &nbsp;
+    <span class="post-meta-item-icon">
+      <i class="icon-book icon"></i>
+      <span class="post-meta-item-text"> 阅读时长≈</span>
+      <span class="post-count">17分</span>
+    </span>
+  </span>
+</div>
+
+
+  
+  </header>
+  
+  <div class="article-entry" itemprop="articleBody">
+    
+    <p><strong>什么是数据库？</strong></p>
+<ul>
+<li><p>数据库是文件的集合，是依照某种数据模型组织起来并存放于二级存储器中的数据集合；</p>
+</li>
+<li><p>数据库实例是程序于用户与操作做系统之间的一层数据管理软件，用户对数据库数据的任何操作（如数据库的定义、查询、运行控制）都是在数据库实例下进行的，只有通过数据库实例才能和数据库打交道。<a id="more"></a></p>
+</li>
+</ul>
+<p>![image-20201024232027238](/Users/wuwenyi/Library/Application Support/typora-user-images/image-20201024232027238.png)</p>
+<p>MySQL由以下几部分组成：</p>
+<ul>
+<li>连接池组件</li>
+<li>管理服务和弓箭组件</li>
+<li>SQL接口组件</li>
+<li>查询分析器组件</li>
+<li>优化器组件</li>
+<li>缓冲（cache）组件</li>
+<li>插件式存储引擎</li>
+<li>物理文件</li>
+</ul>
+<p><strong>存储引擎</strong></p>
+<p>MySQL区别于其他数据库的最重要的一个特点就是<strong>其插件式的表存储引擎</strong>。</p>
+<ul>
+<li>存储引擎是顶层物理结构的实现</li>
+<li>存储引擎是基于表的，而非数据库</li>
+</ul>
+<h3 id="InnoDB存储引擎"><a href="#InnoDB存储引擎" class="headerlink" title="InnoDB存储引擎"></a>InnoDB存储引擎</h3><ul>
+<li>支持事务、行锁设计、支持外键</li>
+<li>默认隔离级别为可重复读</li>
+<li>如果没有显式定义主键，会自动为每一行生成一个6字节的ROWID作为主键</li>
+<li>关键命令<code>SHOW ENGINE INNODB STATUS;</code></li>
+</ul>
+<h3 id="MyISAM存储引擎"><a href="#MyISAM存储引擎" class="headerlink" title="MyISAM存储引擎"></a>MyISAM存储引擎</h3><ul>
+<li><strong>不支持事务</strong>、表锁设计，支持全文索引</li>
+<li>缓冲池只缓存索引文件，而不缓冲数据文件</li>
+<li>MYD存放数据文件，MYI存放索引文件</li>
+</ul>
+<p>查看当前MySQL所支持的存储引擎<code>SHOW ENGINES\G</code></p>
+<h2 id="InnoDB体系架构"><a href="#InnoDB体系架构" class="headerlink" title="InnoDB体系架构"></a>InnoDB体系架构</h2><p>![image-20201030102048363](/Users/wuwenyi/Library/Application Support/typora-user-images/image-20201030102048363.png)</p>
+<h3 id="后台线程"><a href="#后台线程" class="headerlink" title="后台线程"></a>后台线程</h3><p>InnoDB存储引擎是多线程的模型，因此其后台有多个不同类型后台线程，负责处理不同的任务</p>
+<h4 id="Master-Thread"><a href="#Master-Thread" class="headerlink" title="Master Thread"></a>Master Thread</h4><p>非常核心的后台线程，负责将缓冲池中的数据异步刷新到磁盘，保证数据的一致性。</p>
+<h4 id="IO-Thread"><a href="#IO-Thread" class="headerlink" title="IO Thread"></a>IO Thread</h4><p>InnoDB存储引擎中大量使用了AIO来处理写请求，IO Thread的工作主要是负责这些IO请求的回调处理。</p>
+<h3 id="内存"><a href="#内存" class="headerlink" title="内存"></a>内存</h3><h4 id="缓冲池"><a href="#缓冲池" class="headerlink" title="缓冲池"></a>缓冲池</h4><p>在数据库系统中，由于CPU速度与磁盘速度之间的鸿沟，基于磁盘的数据库通常使用缓冲池技术来提高数据库的整体性能。</p>
+<p>缓冲池简单来说就是一块内存区域。在数据库中进行读取页的操作，首先将从磁盘读到的页存放在缓冲池中，下一次再读相同的页时，首先判断该页是否在缓冲池中。若在，称该页在缓冲池中被命中。</p>
+<p>对于数据库中页的修改操作，则首先修改在缓冲池的页，然后再以一定的频率刷新到磁盘上。这里需要注意的是，<strong>页从缓冲池刷新回磁盘的操作并不是在每次页发生更新时触发，而是通过一种称为CheckPoint的机制刷新回磁盘。</strong></p>
+<h5 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h5><h5 id="缓冲池中的页类型"><a href="#缓冲池中的页类型" class="headerlink" title="缓冲池中的页类型"></a>缓冲池中的页类型</h5><ul>
+<li>索引页</li>
+<li>数据页</li>
+<li>undo页</li>
+<li>插入缓冲（insert buffer)</li>
+<li>自适应哈希索引</li>
+<li>InnoDB存储的锁信息</li>
+<li>数据字典信息</li>
+</ul>
+<p>![image-20201030104944522](/Users/wuwenyi/Library/Application Support/typora-user-images/image-20201030104944522.png)</p>
+<h4 id="内存管理"><a href="#内存管理" class="headerlink" title="内存管理"></a>内存管理</h4><h5 id="LRU"><a href="#LRU" class="headerlink" title="LRU"></a>LRU</h5><p>通常，数据库中的缓冲池是通过LRU（latest Recent Used，最近最少使用）算法来进行管理的。最频繁使用的页在LRU列表的前端，而最少使用的页在LRU列表的前端，最少使用的在尾端。<strong>当缓冲池不能存放新读取到的页时，首先释放LRU尾端的列。</strong></p>
+<p>InnoDB存储引擎对传统的LRU算法进行了一些优化。<strong>在LRU列表加入了midpoint位置。新读取的页，虽然是新访问的页，但并不是直接放入到LRU类表的首部，而是放入到LRU列表的midpoint位置，称为midpoint insertion strategy</strong></p>
+<h6 id="不采用朴素LRU算法的原因（不理解）"><a href="#不采用朴素LRU算法的原因（不理解）" class="headerlink" title="不采用朴素LRU算法的原因（不理解）"></a>不采用朴素LRU算法的原因（不理解）</h6><p>若直接将读取到的页放入到LRU的首部，那么某些SQL操作可能会使缓冲池的页被刷新出，从而影响缓冲池的相率。常见的这类操作位为索引或数据的扫描操作。这类操作需要访问表中的许多页，甚至是全部的页，而这些也通常来说又仅在这次查询操作中需要，并不是活跃的热点数据。</p>
+<h4 id="重做日志缓冲（redo-log-buffer"><a href="#重做日志缓冲（redo-log-buffer" class="headerlink" title="重做日志缓冲（redo log buffer)"></a>重做日志缓冲（redo log buffer)</h4><p>InnoDB首先将重做日志信息先放入到这个缓冲区，然后按一定频率将其刷新到重做日志文件。重做日志缓冲一般每秒钟会将重做日志缓冲刷新到日志文件（因此缓冲不大），只需要保证每秒事务量在这个缓冲大小之内即可。</p>
+<h5 id="重做日志（redo-log"><a href="#重做日志（redo-log" class="headerlink" title="重做日志（redo log)"></a>重做日志（redo log)</h5><p>确保事务的持久性。redo日志记录事务执行后的状态，用来恢复未写入data file的已成功事务更新的数据。防止在发生故障的时间点，尚有脏页未写入磁盘，在重启<a target="_blank" rel="noopener" href="https://www.2cto.com/database/MySQL/">mysql</a>服务的时候，根据redo log进行重做，从而达到事务的持久性这一特性。</p>
+<p><strong>什么时候写入到redo log：</strong></p>
+<ul>
+<li>Master Thread每一秒将缓冲刷新到重做日志文件（[详情见](#Master Thread 的工作方式))</li>
+<li>每个事务提交时会将缓冲刷新到重做日志文件</li>
+<li>当重做日志缓冲池剩余空间小于1/2时，缓冲刷新到重做日志文件</li>
+</ul>
+<h3 id="CheckPoint技术"><a href="#CheckPoint技术" class="headerlink" title="CheckPoint技术"></a>CheckPoint技术</h3><h6 id="脏页"><a href="#脏页" class="headerlink" title="脏页"></a>脏页</h6><p>如果一条DML语句改变了页中的记录，那么此时页是脏的，即缓冲池中的页的版本要比磁盘的新。数据库需要将新版本的页从缓冲池刷新到磁盘。</p>
+<ul>
+<li>每个变化都刷新：性能开销太大</li>
+<li>缓冲池将新版本的页刷新到磁盘时宕机，数据不能恢复</li>
+</ul>
+<h6 id="Write-Ahead-Log策略"><a href="#Write-Ahead-Log策略" class="headerlink" title="Write Ahead Log策略"></a>Write Ahead Log策略</h6><p>当事务提交时，先写重做日志，再修改页。这样如果由于系统宕机导致数据丢失，可以通过重做日志回复数据。（Durability持久性的要求）</p>
+<h5 id="现存问题"><a href="#现存问题" class="headerlink" title="现存问题"></a>现存问题</h5><ul>
+<li>缓冲池的容量有限</li>
+<li>如果重做日志很大，恢复时间将会变得特别长</li>
+</ul>
+<h5 id="CheckPoint目的"><a href="#CheckPoint目的" class="headerlink" title="CheckPoint目的"></a>CheckPoint目的</h5><p>Checkpoint所做的事情就是讲缓冲池中的脏页刷回磁盘。不同之处在于每次刷新多少页回磁盘，每次从哪里取脏页，以及什么时间触发Checkpoint。</p>
+<ul>
+<li>缩短数据库的恢复时间</li>
+<li>缓冲池不够用时，将脏页刷新到磁盘</li>
+<li>重做日志不可用时，刷新脏页</li>
+</ul>
+<h4 id="情景"><a href="#情景" class="headerlink" title="情景"></a>情景</h4><ul>
+<li><p>当数据库宕机，数据库不需要重做所有的日志，因为CheckPoint之前的页都已经刷新回磁盘。</p>
+</li>
+<li><p>此外，当缓冲池不够用时，溢出最近最少使用的列，若为脏页，强制Checkpoint</p>
+</li>
+<li><p>重做日志是循环使用的，当数据库宕机，恢复操作不需要这部分的重做日志，这部分就可以被覆盖重用。</p>
+</li>
+</ul>
+<h4 id="Checkpoint的几种情况"><a href="#Checkpoint的几种情况" class="headerlink" title="Checkpoint的几种情况"></a>Checkpoint的几种情况</h4><ul>
+<li>Master Thread Checkpoint</li>
+<li>FLUSH_LRU_LIST Checkpoint——保证LRU列表有差不多100个空闲页可供使用。</li>
+<li>Async/Sync Flush Checkpoint——重做日志文件不可用，这时候需要强制将一些页刷新回磁盘</li>
+<li>Dirty Page too much Checkpoint——脏页数量太多，导致innoDB强制Checkpoint，目的是为了保证缓冲池中有足够可用的页。</li>
+</ul>
+<h3 id="Master-Thread-的工作方式"><a href="#Master-Thread-的工作方式" class="headerlink" title="Master Thread 的工作方式"></a>Master Thread 的工作方式</h3><p>Master Thread具有最高的线程有限级别。内部由多个循环（loop）组成：</p>
+<p>Master Thread会根据数据库状态来进行循环的切换</p>
+<ul>
+<li><p>主循环loop，两大部分的操作在主循环中（每秒钟的操作和每10秒的操作）</p>
+<p>每秒钟的操作</p>
+<ul>
+<li>总是将redo log缓冲刷新到磁盘，即使事务没提交（<strong>解释了为什么再大的事务提交的时间也是很短的</strong>）</li>
+<li>判断前一秒发生的IO次数是否小于5次，如果大于5次，合并插入缓冲（是什么？？）</li>
+<li>判断缓冲池脏页比例是否超过配置文件，超过则同步100个脏页到磁盘</li>
+<li>当前没有用户活动，切换到background loop<ul>
+<li>删除无用的undo 页</li>
+<li>合并20个插入缓冲</li>
+</ul>
+</li>
+</ul>
+<p>每10秒钟的操作</p>
+<ul>
+<li>IO次数&lt;100?同步100个脏页:do nothing</li>
+<li>合并20个insert buffer</li>
+<li>判断当前事务系统中被删除的行是否可以被删除（有时候还会读取之前版本的undo 信息——一致性），可以则删除</li>
+<li>跳回主循环</li>
+</ul>
+</li>
+<li><p>后台循环background loop</p>
+</li>
+<li><p>刷新循环flush loop</p>
+</li>
+<li><p>暂停循环 suspend loop</p>
+</li>
+</ul>
+<h3 id="InnoDB关键特性"><a href="#InnoDB关键特性" class="headerlink" title="InnoDB关键特性"></a>InnoDB关键特性</h3><h4 id="插入缓冲"><a href="#插入缓冲" class="headerlink" title="插入缓冲"></a>插入缓冲</h4><h5 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h5><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> t(</span><br><span class="line">    a <span class="built_in">INT</span> AUTO_INCREMENT,</span><br><span class="line">  b <span class="built_in">VARCHAR</span>(<span class="number">30</span>),</span><br><span class="line">  PRIMARY <span class="keyword">KEY</span>(a),</span><br><span class="line">  <span class="keyword">key</span>(b)</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+
+<p>a列是自增长的集簇索引，若插入一条数据，不需要随机读取另一个页中的记录，因此这类插入操作很快</p>
+<h5 id="非自增主键的插入与非NULL主键插入"><a href="#非自增主键的插入与非NULL主键插入" class="headerlink" title="非自增主键的插入与非NULL主键插入"></a>非自增主键的插入与非NULL主键插入</h5><p>并不是所有的主键插入都是顺序的。若主键是uuid这样的，那么插入和辅助索引一样，同样是随机的。</p>
+<p>即使主键是自增类型，但是插入的是指定的指而非NULL，那么同样可能导致插入并非连续的情况。</p>
+<p>但是一张表只有一个聚簇索引，更多情况是一张表有多个辅助索引（secondary index)。比如索引b。</p>
+<p>这样在插入时，数据页的存放还是按主键a进行顺序存放的，但是对于非聚集索引叶子节点的插入不再是顺序的了，==这时就需要离散地访问非聚簇索引页，由于随机读取的存在而导致了插入性能下降==（如下图）</p>
+<p><img src="http://images.cnblogs.com/cnblogs_com/aspnethot/Pic10.JPG" alt="img"></p>
+<p>InnoDB对于非集簇性索引的插入或者更新操作，不是每一次直接插入到索引页中，而是先判断插入的非聚集性索引页是否存在缓冲池中，若在则直接插入；若不在，则先放入到一个Insert Buffer对象中。然后再以一定的频率和情况进行Insert Buffer进行Insert Buffer 和辅助索引页子节点的Merge（合并操作），这时通常能将多个插入合并到一个操作中国（因为在同一个索引页），大大提高了非集簇索引插入的性能。</p>
+<h5 id="Insert-buffer的条件"><a href="#Insert-buffer的条件" class="headerlink" title="Insert buffer的条件"></a>Insert buffer的条件</h5><ul>
+<li><p>索引必须是辅助索引如果是聚集索引，那就没什么要合并的必要了</p>
+</li>
+<li><p>不能是唯一索引因为插入缓冲的时候，mysql不会去判断数据的唯一性，如果要判断唯一性，就要离散读，失去了Insert Buffer的意义。</p>
+</li>
+</ul>
+<h5 id="Insert-Buffer的内部实现"><a href="#Insert-Buffer的内部实现" class="headerlink" title="Insert Buffer的内部实现"></a>Insert Buffer的内部实现</h5><p>在现在的版本，全局只有一颗Insert BUffer B+树</p>
+<h4 id="两次写（DoubleWrite）"><a href="#两次写（DoubleWrite）" class="headerlink" title="两次写（DoubleWrite）"></a>两次写（DoubleWrite）</h4><p>Double write带给innoDB存储引擎的是数据页的可靠性。</p>
+<h5 id="背景-1"><a href="#背景-1" class="headerlink" title="背景"></a>背景</h5><h6 id="部分写失效"><a href="#部分写失效" class="headerlink" title="部分写失效"></a>部分写失效</h6><p>正在写入某个页到表中的时候失效，比如16KB的页写了前4KB，然后发生了宕机</p>
+<h6 id="为什么不能用redo-log恢复？"><a href="#为什么不能用redo-log恢复？" class="headerlink" title="为什么不能用redo log恢复？"></a>为什么不能用redo log恢复？</h6><p>redo log中记录的是对页的物理操作，比如偏移量800，写’aaa’。如果这个页本身已经发生了损坏，再对其进行重做是没有意义的。</p>
+<p>因此，在应用redo log之前，yoghurt需要一个页的副本，当写入发生失效发生时，先通过页的副本来还原该页，再进行重做，这就是doublewrite.</p>
+<h5 id="结构"><a href="#结构" class="headerlink" title="结构"></a>结构</h5><p>doublewrite由两部分组成，一部分是内存中的doublewrite buffer(2MB)，另一部分时物理磁盘上共享表空间中连续的128个页，即两个区（extent），2MB。</p>
+<h5 id="什么时候写入doublewrite-buffer"><a href="#什么时候写入doublewrite-buffer" class="headerlink" title="什么时候写入doublewrite buffer?"></a>什么时候写入doublewrite buffer?</h5><p>在堆缓冲池的脏页进行刷新时，并不直接写磁盘，而是会通过mempy函数将脏页先复制到内存中的doublewrite buffer，之后通过doublewrite buffer再分两次，每次1MB顺序地写入共享表空间的物理磁盘上，然后马上调动fsync函数，同步磁盘，避免缓冲写带来的问题。因为doublewrite页是连续的，因此这个过程是顺序写的，开销并不是很大。在完成doublewrite页的写入后，再将doublewrite buffer中的页写入各个表空间文件中，此时的写入则是离散的。</p>
+<p>![image-20201104212336883](/Users/wuwenyi/Library/Application Support/typora-user-images/image-20201104212336883.png)</p>
+<h4 id="自适应哈希索引（Adaptive-Hash-Index，AHI）"><a href="#自适应哈希索引（Adaptive-Hash-Index，AHI）" class="headerlink" title="自适应哈希索引（Adaptive Hash Index，AHI）"></a>自适应哈希索引（Adaptive Hash Index，AHI）</h4><h5 id="哈希索引的优势"><a href="#哈希索引的优势" class="headerlink" title="哈希索引的优势"></a>哈希索引的优势</h5><p>一般情况下用hash一次查找就能定位数据。而B+树的查找次数，取决于树的高度，生产环境中，B+树的高度一般为3-4层，需要查找3-4次。因此哈希索引的速度是要更快的</p>
+<p>另外，自适应哈希索引是数据库自优化的，无需DBA对数据库进行人为调整。</p>
+<p>InnoDB会监控对表上==各索引页的查询？？==。如果观察到建立哈希索引可以带来速度提升，则建立哈希索引，称之为自适应哈希索引。AHI是通过<strong>缓冲池</strong>的B+树页构造而来，因此建立的速度很快，而且不需要对整张表构建（因为是对缓冲池的页进行的构建）</p>
+<h5 id="AHI建立的要求"><a href="#AHI建立的要求" class="headerlink" title="AHI建立的要求"></a>AHI建立的要求</h5><ul>
+<li><p>对整个页的连续访问模式必须是一样的。如对于（a,b)这样的联合索引，有两种访问模式：    </p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#如果交替进行上述两种操作，不会对该页构造AHI</span></span><br><span class="line">WHERE a=xxx</span><br><span class="line">WHERE a=xxx and b=xxx</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>以该模式访问了100次</p>
+</li>
+<li><p>页通过该模式访问了N次，其中N=页中记录*1/16</p>
+</li>
+</ul>
+<h4 id="异步IO（AIO）"><a href="#异步IO（AIO）" class="headerlink" title="异步IO（AIO）"></a>异步IO（AIO）</h4><p>用户可以在发出一个IO请求后立即再发出另一个IO请求，当全部IO请求发送完毕后，等待所有IO操作的完成，这就是AIO。</p>
+<h5 id="IO-Merge"><a href="#IO-Merge" class="headerlink" title="IO Merge"></a>IO Merge</h5><p>AIO的另一个优势是可以进行IO Merge操作，即将多个IO合并为一个IO。例如用户需要访问页的(space,page_no)为：</p>
+<p><code>(8,6)、(8,7),(8,8)</code></p>
+<p>每个页的大小为16KB，那么同步IO需要进行3次IO操作。而AIO会判断到这三个页时连续的（通过（space，page_no）。因此AIO底层会发送一个IO请求，从（8，6）开始，读取48KB的页。</p>
+<h4 id="刷新邻接页"><a href="#刷新邻接页" class="headerlink" title="刷新邻接页"></a>刷新邻接页</h4><p>当刷新一个脏页时，InnoDB会检测该页所在区（extent）的所有页，如果是脏页，那么一起进行刷新。</p>
+<h2 id="MySQL文件"><a href="#MySQL文件" class="headerlink" title="MySQL文件"></a>MySQL文件</h2><h4 id="日志文件"><a href="#日志文件" class="headerlink" title="日志文件"></a>日志文件</h4><h5 id="慢查询日志（slow-log"><a href="#慢查询日志（slow-log" class="headerlink" title="慢查询日志（slow log)"></a>慢查询日志（slow log)</h5><p>Slow log可帮助DBA定位可能存在问题的SQL语句，从而进行SQL语句层面的优化。例如，<strong>可以在MySQL启动时设置一个阈值，将运行时间超过该值的所有SQL语句都记录到慢查询日志文件中</strong></p>
+<h2 id="表"><a href="#表" class="headerlink" title="表"></a>表</h2><h3 id="索引组织表"><a href="#索引组织表" class="headerlink" title="索引组织表"></a>索引组织表</h3><p>如果建表是没有定义主键：</p>
+<ul>
+<li>首先判断表中是否有唯一主键，如果没有，自动创建一个6字节的指针</li>
+<li>存在一个非空唯一索引，该列为主键</li>
+<li>存在多个非空唯一索引，选择第一个为主键（定义的顺序而非建表顺序）</li>
+</ul>
+<h3 id="InnoDB逻辑存储结构"><a href="#InnoDB逻辑存储结构" class="headerlink" title="InnoDB逻辑存储结构"></a>InnoDB逻辑存储结构</h3><p>所有数据都被逻辑存储放在一个空间中，称之为表空间（tablespace）</p>
+<p>表空间又由段（segment)、区（extent）、页（page）组成。</p>
+<p><img src="https://images2018.cnblogs.com/blog/919737/201804/919737-20180408160535653-284016311.jpg" alt="img"></p>
+<h4 id="表空间"><a href="#表空间" class="headerlink" title="表空间"></a>表空间</h4><p>innoDB有一个共享表空间ibdata1</p>
+<h4 id="段"><a href="#段" class="headerlink" title="段"></a>段</h4><p>常见的段有数据段、索引段、回滚段</p>
+<p>因为InnoDB表示索引组织的，因此数据即索引，索引即数据。即数据段即为B+树的叶子节点</p>
+<h4 id="区"><a href="#区" class="headerlink" title="区"></a>区</h4><p>区是由连续页组成的空间，在任何情况下每个区的大小都为1MB</p>
+<h4 id="页"><a href="#页" class="headerlink" title="页"></a>页</h4><p>是InnoDB磁盘管理的最小单位，默认每个页大小为16KB</p>
+<h2 id="索引与算法"><a href="#索引与算法" class="headerlink" title="索引与算法"></a>索引与算法</h2><h2 id="附录"><a href="#附录" class="headerlink" title="附录"></a>附录</h2><h5 id="配置-1"><a href="#配置-1" class="headerlink" title="配置"></a>配置</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line">#缓冲池的配置可以通过参数innodb_buffer_pool_size来进行设置</span><br><span class="line">SHOW VARIABLES LIKE &#39;innodb_buffer_pool_size&#39;;</span><br><span class="line"></span><br><span class="line">#从1.0版本开始，允许有多个缓冲池，每个页根据哈希值平均分配到不同实例中（类似hashmap)，可以设置innodb_buffer_pool_instances，默认为1</span><br><span class="line">SHOW VARIABLES LIKE &#39;innodb_buffer_pool_instances&#39;;</span><br><span class="line"></span><br><span class="line">#midpoint位置参数innodb_old_blocks_pct</span><br><span class="line">SHOW VARIABLES LIKE &#39;innodb_old_blocks_pct&#39;;</span><br><span class="line"></span><br><span class="line">#重做日志缓冲大小innodb_log_buffer_size</span><br><span class="line"></span><br><span class="line">#innodb_lru_scan_depth控制LRU类表中可用页的数量，默认为1024</span><br><span class="line"></span><br><span class="line"># innodb_max_dirty_pages_pct 缓冲池最大脏页数量（达到该脏页数量时，进行checkpoint)</span><br><span class="line"></span><br><span class="line"># innodb_use_native_aio 用来控制是否启用Native AIO,Linux默认为on</span><br><span class="line"></span><br><span class="line"># 慢查询日志阈值</span><br><span class="line">SHOW VARIABLES LIKE &#39;long_query_time&#39;;</span><br><span class="line"></span><br><span class="line">#页的大小 innodb_page_size</span><br></pre></td></tr></table></figure>
+
+
+
+<p>以下是学习过程中遇到一些术语时，稍微迷惑的地方</p>
+<h3 id="InnoDB数据页"><a href="#InnoDB数据页" class="headerlink" title="InnoDB数据页"></a>InnoDB数据页</h3><p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/bdsir/p/8745553.html">https://www.cnblogs.com/bdsir/p/8745553.html</a></p>
+<p>页（Page）是 Innodb 存储引擎用于管理数据的最小磁盘单位。</p>
+<p>常见的页类型有数据页、Undo 页、系统页、事务数据页。</p>
+<p>MySQL的B+树种的每个节点即一个页</p>
+<p><img src="https://images2018.cnblogs.com/blog/919737/201804/919737-20180408164025591-158405878.jpg" alt="img"></p>
+<h3 id="MySQL常见的日志种类及作用"><a href="#MySQL常见的日志种类及作用" class="headerlink" title="MySQL常见的日志种类及作用"></a>MySQL常见的日志种类及作用</h3><ol>
+<li><p>redo 重做日志</p>
+<p>作用：确保日志的持久性，<strong>防止在发生故障，脏页未写入磁盘</strong>。重启数据库会进行redo log执行重做，达到事务一致性</p>
+</li>
+<li><p>undo 回滚日志</p>
+<p>作用：保证数据的原子性，<strong>记录事务发生之前的一个版本，用于回滚</strong>，innodb事务可重复读和读取已提交 隔离级别就是通过mvcc+undo实现</p>
+</li>
+<li><p>errlog 错误日志</p>
+</li>
+</ol>
+<p>　　作用：Mysql本身启动，停止，运行期间发生的错误信息</p>
+<ol start="4">
+<li>slow query log 慢查询日志</li>
+</ol>
+<p>　　作用：记录执行时间过长的sql，时间阈值可以配置，只记录执行成功</p>
+<ol start="5">
+<li>bin log 二进制日志</li>
+</ol>
+<p>　　作用：用于主从复制，实现主从同步</p>
+<ol start="6">
+<li>relay log 中继日志</li>
+</ol>
+<p>　　作用：用于数据库主从同步，将主库发来的bin log保存在本地，然后从库进行回放</p>
+<ol start="7">
+<li>general log 普通日志</li>
+</ol>
+<p>　　作用：记录数据库的操作明细，默认关闭，开启后会降低数据库性能</p>
+<h2 id="聚集索引与非聚集索引"><a href="#聚集索引与非聚集索引" class="headerlink" title="聚集索引与非聚集索引"></a>聚集索引与非聚集索引</h2><p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/aspnethot/articles/1504082.html">https://www.cnblogs.com/aspnethot/articles/1504082.html</a></p>
+<h4 id="比喻"><a href="#比喻" class="headerlink" title="比喻"></a>比喻</h4><ul>
+<li><p>聚集索引类似于字典中的拼音查询，从A-Z按顺序，存储的数据也是按照A-Z的顺序来的，且只有这一种按照顺序的查询（因此每个表只能由一个聚集索引；</p>
+</li>
+<li><p>非聚集索引类似于字典中的偏旁查询，不按照顺序</p>
+</li>
+</ul>
+<h4 id="特点"><a href="#特点" class="headerlink" title="特点"></a>特点</h4><p>聚集索引（聚簇索引）：</p>
+<ul>
+<li><p>数据行的物理顺序与列值（id）的顺序相同（问题：如果主键为uuid等形式还是聚集索引吗？答：不是）</p>
+</li>
+<li><p>能够根据查询要求，迅速缩小查询范围，避免全表扫描。</p>
+</li>
+</ul>
+<h4 id="误区"><a href="#误区" class="headerlink" title="误区"></a>误区</h4><p>主键就是聚集索引</p>
+<h3 id="联合索引的命中规则"><a href="#联合索引的命中规则" class="headerlink" title="联合索引的命中规则"></a>联合索引的命中规则</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE</span> <span class="keyword">TABLE</span> E (e1 <span class="built_in">INT</span>, e2 <span class="built_in">VARCHAR</span>(<span class="number">9</span>), e3 <span class="built_in">INT</span>, PRIMARY <span class="keyword">KEY</span>(e1, e3));</span><br><span class="line"><span class="comment"># 这样就建立了一个联合索引：e1,e3</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#触发联合索引是有条件的：</span></span><br><span class="line"><span class="comment">#1、使用联合索引的全部索引键，可触发索引的使用。</span></span><br><span class="line"><span class="keyword">SELECT</span> E.* <span class="keyword">FROM</span> E <span class="keyword">WHERE</span> E.e1=<span class="number">1</span> <span class="keyword">AND</span> E.e3=<span class="number">2</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#2、使用联合索引的前缀部分索引键，如“key_part_1 &lt;op&gt;常量”，可触发索引的使用。</span></span><br><span class="line"><span class="keyword">SELECT</span> E.* <span class="keyword">FROM</span> E <span class="keyword">WHERE</span> E.e1=<span class="number">1</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#3、使用部分索引键，但不是联合索引的前缀部分，如“key_part_2 &lt;op&gt;常量”，不可触发索引的使用。</span></span><br><span class="line"><span class="keyword">SELECT</span> E.* <span class="keyword">FROM</span> E <span class="keyword">WHERE</span> E.e3=<span class="number">1</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#4、使用联合索引的全部索引键，但索引键不是AND操作，不可触发索引的使用。</span></span><br><span class="line"><span class="keyword">SELECT</span> E.* <span class="keyword">FROM</span> E <span class="keyword">WHERE</span> E.e3=<span class="number">2</span> <span class="keyword">OR</span> E.e1=<span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+
+    
+
+    
+
+    
+
+  </div>
+  <div class="article-info article-info-index">
+    
+    
 	<div class="article-tag tagcloud">
 		<i class="icon-price-tags icon"></i>
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">Java</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">database</a>
         		</li>
       		 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">SpringBoot</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">mysql</a>
         		</li>
       		
 		</ul>
 	</div>
 
-          
+    
 
+    
+
+    
+    
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <!-- <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a> -->
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
         </div>
-        <div class="clearfix"></div>
-    </header>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+     <!-- <img src="//pan.baidu.com/share/qrcode?url=http://wuisgoing.github.io/2020/10/24/%E3%80%8AMySQL%E6%8A%80%E6%9C%AF%E5%86%85%E5%B9%95-InnoDB%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E%E3%80%8B%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" alt="微信分享二维码"> -->
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+
+    
+    <div class="clearfix"></div>
+  </div>
   </div>
 </article>
+
+
+<nav id="article-nav">
   
-    
-    
-      
-        </div></section>
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2020" class="archive-year">2020</a>
+    <a href="/2022/05/30/%E8%A7%A3%E5%86%B3springboot%E4%B8%ADfat-jar%E7%9A%84%E5%8A%A8%E6%80%81%E7%BC%96%E8%AF%91%E9%97%AE%E9%A2%98/" id="article-nav-newer" class="article-nav-link-wrap">
+      <i class="icon-circle-left"></i>
+      <div class="article-nav-title">
+        
+          解决springboot中fat-jar的动态编译问题
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2020/10/04/Java%E4%B8%AD%E5%85%B3%E4%BA%8E%E5%BC%82%E6%AD%A5%E7%9A%84%E4%BD%BF%E7%94%A8/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Java中关于异步的使用</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
         </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	
-<a href="/2020/10/04/Java%E4%B8%AD%E5%85%B3%E4%BA%8E%E5%BC%82%E6%AD%A5%E7%9A%84%E4%BD%BF%E7%94%A8/" class="archive-article-date">
-        <time datetime="2020-10-04T02:13:48.598Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-10-04</time>
-</a>
+        
+        
+    </div>
+</aside>
 
-        </div>
-    	 
+
+
+
+
+
+
+
+
+
+  <div id="giteement-ctn"></div>
   
-    <h1 itemprop="name">
-	
-	  <a class="archive-article-title" href="/2020/10/04/Java%E4%B8%AD%E5%85%B3%E4%BA%8E%E5%BC%82%E6%AD%A5%E7%9A%84%E4%BD%BF%E7%94%A8/" target="_blank">Java中关于异步的使用</a>
+    <link rel="stylesheet" href="/lib/default.css">
+    <script src="/lib/giteement.browser.js"></script>
   
-    </h1>
-  
+  <script>
+  <!-- id: "《MySQL技术内幕-InnoDB存储引擎》学习笔记" -->
+  var giteement = new Giteement({
+    id: '20201024231353',
+    owner: 'wu_wenyi',
+    repo: 'hexo-blog-comment',
+    backcall_uri: 'https://wuisgoing.github.io',
+    oauth_uri: 'https://cors-anywhere.herokuapp.com/https://gitee.com/oauth/token',
+    oauth: {
+      client_id: 'db19ad3b78fbd17e56d67e9c2de391ace26608a154035f0d4fa2e6a1b7da37b2',
+      client_secret: '156cdf1df28318e0aa8eee67ce683fa30c293c6ca8a95f7fc32b107be70c70b2'
+    },
+  })
+  giteement.render('giteement-ctn')
+  </script>
 
 
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">Java</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">spring</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	
-<a href="/2020/08/15/Spring-in-action%E4%B9%8BReactor/" class="archive-article-date">
-        <time datetime="2020-08-15T06:46:58.430Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-08-15</time>
-</a>
-
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-	
-	  <a class="archive-article-title" href="/2020/08/15/Spring-in-action%E4%B9%8BReactor/" target="_blank">spring in action之Reactor</a>
-  
-    </h1>
-  
 
 
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">Java</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">Reactor</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">stream</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	
-<a href="/2020/08/05/%E6%B7%B1%E5%85%A5SpringAOP/" class="archive-article-date">
-        <time datetime="2020-08-05T12:23:40.390Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-08-05</time>
-</a>
-
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-	
-	  <a class="archive-article-title" href="/2020/08/05/%E6%B7%B1%E5%85%A5SpringAOP/" target="_blank">深入SpringAOP</a>
-  
-    </h1>
-  
 
 
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">Java</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">Spring</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-  
-    </div></section>
-  
-
-    
 
 
           </div>
@@ -401,9 +640,9 @@
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: false,
+		isPost: true,
 		isArchive: false,
-		isTag: true,
+		isTag: false,
 		isCategory: false,
 		open_in_new: true,
 		toc_hide_index: true,

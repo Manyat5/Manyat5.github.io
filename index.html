@@ -169,6 +169,274 @@
 
 
   
+    <article id="post-解决springboot中fat-jar的动态编译问题" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+  
+  
+    <h1 itemprop="name">
+	
+	  <a class="article-title" href="/2022/05/30/%E8%A7%A3%E5%86%B3springboot%E4%B8%ADfat-jar%E7%9A%84%E5%8A%A8%E6%80%81%E7%BC%96%E8%AF%91%E9%97%AE%E9%A2%98/" target="_blank">解决springboot中fat-jar的动态编译问题</a>
+  
+    </h1>
+  
+
+
+  
+  
+<a href="/2022/05/30/%E8%A7%A3%E5%86%B3springboot%E4%B8%ADfat-jar%E7%9A%84%E5%8A%A8%E6%80%81%E7%BC%96%E8%AF%91%E9%97%AE%E9%A2%98/" class="archive-article-date">
+        <time datetime="2022-05-30T13:54:38.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-05-30</time>
+</a>
+
+  
+  
+    
+
+  
+  </header>
+  
+  <div class="article-entry" itemprop="articleBody">
+    
+    <h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>在springboot项目中使用了jdk自带的动态编译工具，在开发的过程一直都是正常的，但是部署到服务器的时候就报错了，提示一些第三方的类找不到。不管怎么改参数或者换classLoader都无济于事。</p>
+<h2 id="原因"><a href="#原因" class="headerlink" title="原因"></a>原因</h2><p>本地的启动方式与springboot fat-jar启动方式不同。</p>
+<p>本地启动的时候，idea启动的命令如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">java -jar  xx.jar -classpath <span class="string">&quot;D:\jdk\jdk1.8.0_291\jre\lib\charsets.jar;D:\jdk\jdk1.8.0_291\jre\lib\deploy.jar .....&quot;</span></span><br></pre></td></tr></table></figure>
+
+<p>其中带有<code>-classpath</code>参数，javac编译器是可以拿到这个参数的，因此本地启动的时候，不会出现动态编译缺失第三方资源的问题。</p>
+<p>fat-jar启动中，springboot重写了<code>ClassLoader</code>方法，是使用<code>LaunchedURLClassLoader</code>来加载类的，这部分资源是Javac编译器无法拿到的，所以动态编译过程报错了。</p>
+<h2 id="一些解决的思路"><a href="#一些解决的思路" class="headerlink" title="一些解决的思路"></a>一些解决的思路</h2><ol>
+<li>在springboot的启动参数中加上-classpath参数，即设置一个文件路径存放固定用于编译jar包。这种方法是解决问题最简单的，但是个人感觉不是很优雅，如果被动态编译的文件更新了jar包的版本，里面的jar包也要替换。</li>
+<li>实现jdk的接口<code>JavaFileManager</code>,实现里面的<code>list</code>方法，这样做的好处是:<ol>
+<li>被编译文件，需要什么jar包，就只会去找这部分的jar的url，且这些jar都是已有的。</li>
+<li>无需设置额外的启动参数和jar包。</li>
+<li>本地开发模式和fat-jar模式没有区别，如果有问题，本地模式就能及时发现。</li>
+<li>启动的速度和消耗的资源跟本地几乎没有区别。编译一个文件，平均耗时0.3s。</li>
+<li>指定的类有指定的类加载器来加载，即该类加载器被销毁了，里面的加载的类资源也可以跟着一起销毁。</li>
+<li>可以重新加载相同类名的.class文件</li>
+<li>创建自定义类加载器的代价很小，可以重复利用父类加载器。</li>
+</ol>
+</li>
+</ol>
+<h3 id="自定义JavaFileManager来解决动态编译问题"><a href="#自定义JavaFileManager来解决动态编译问题" class="headerlink" title="自定义JavaFileManager来解决动态编译问题"></a>自定义JavaFileManager来解决动态编译问题</h3><ol>
+<li><p>使用javaparser解析编译java文件的语法树（得到里面的package-info）</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CompilationUnit compilationUnit = JavaParser.parse(javaCode);</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>获取包名</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">compilationUnit.getImports().stream()</span><br><span class="line">                .map(importDeclaration -&gt; importDeclaration.getName().asString())</span><br><span class="line">                .filter(importClass -&gt; !importClass.startsWith(<span class="string">&quot;java&quot;</span>))</span><br><span class="line">                              <span class="comment">// 获取包名</span></span><br><span class="line">                .map(PackageInternalsFinder::getPackageName)</span><br><span class="line">                .distinct()</span><br><span class="line">                              <span class="comment">// 下一步</span></span><br><span class="line">                              .forEach(<span class="keyword">this</span>::find);</span><br><span class="line">  </span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">* 找到对应的导入包名</span></span><br><span class="line"><span class="comment">* <span class="doctag">@param</span> importName example：com.example.ave.constant.CommonConstant.FEMALE</span></span><br><span class="line"><span class="comment">* <span class="doctag">@return</span> like com.example.ave.constant</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> String <span class="title">getPackageName</span><span class="params">(String importName)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">int</span> lastDotIndex =  importName.lastIndexOf(<span class="string">&quot;.&quot;</span>);</span><br><span class="line">  <span class="comment">// 如果是大写，说明不是包名，继续找到找到包名为止</span></span><br><span class="line">  <span class="keyword">char</span> charAfterLastDot;</span><br><span class="line">  <span class="keyword">do</span> &#123;</span><br><span class="line">    importName = importName.substring(<span class="number">0</span>, lastDotIndex);</span><br><span class="line">    lastDotIndex = importName.lastIndexOf(<span class="string">&quot;.&quot;</span>);</span><br><span class="line">    charAfterLastDot = importName.charAt(lastDotIndex + <span class="number">1</span>);</span><br><span class="line">  &#125; <span class="keyword">while</span> (charAfterLastDot &gt;= <span class="string">&#x27;A&#x27;</span> &amp;&amp; charAfterLastDot &lt;= <span class="string">&#x27;Z&#x27;</span>);</span><br><span class="line">  <span class="keyword">return</span> importName;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>通过springboot的类加载器获取包名对应的url</p>
+<p>用一个Map存放包名-编译资源(用JaveFileObject表示)的映射，如果之前已经获取过了，则无需重复获取。<strong>虽然springboot的Classloader重写了loadClass方法，但是getResources方法是没有重写的，通过该方法可以拿到包名下面的URL</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment">*  缓存的依赖JavaFileObject</span></span><br><span class="line"><span class="comment">*  key是包名，如com.alibaba.fastjson</span></span><br><span class="line"><span class="comment">*  value是包名下面的类文件，也是编译所需要的资源</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Map&lt;String, Set&lt;JavaFileObject&gt;&gt; PACKAGE_DEPENDENT_OBJECT_MAP = <span class="keyword">new</span> HashMap&lt;&gt;(<span class="number">256</span>);</span><br><span class="line"></span><br><span class="line"><span class="comment">/** springboot的ClassLoader */</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> ClassLoader classLoader = getClass().getClassLoader();</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="meta">@SneakyThrows</span></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">find</span><span class="params">(String packageName)</span> </span>&#123;</span><br><span class="line">  <span class="comment">// 已存在则跳过，为后面编译节省资源</span></span><br><span class="line">  <span class="keyword">if</span> (PACKAGE_DEPENDENT_OBJECT_MAP.containsKey(packageName)) &#123;</span><br><span class="line">    <span class="keyword">return</span>;</span><br><span class="line">  &#125;</span><br><span class="line">  String javaPackageName = packageName.replaceAll(<span class="string">&quot;\\.&quot;</span>, <span class="string">&quot;/&quot;</span>);</span><br><span class="line">  Enumeration&lt;URL&gt; urlEnumeration = classLoader.getResources(javaPackageName);</span><br><span class="line">  <span class="keyword">while</span> (urlEnumeration.hasMoreElements()) &#123;</span><br><span class="line">    <span class="comment">// one URL for each jar on the classpath that has the given package</span></span><br><span class="line">    URL packageFolderURL = urlEnumeration.nextElement();</span><br><span class="line">    processJar(packageFolderURL);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+</li>
+<li><p>处理springboot fat-jar的url</p>
+<p>得到要处理的每个jar包下面的.class文件的URL放到刚才设置的map中，这样编译前的准备工作就做好了。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String CLASS_FILE_EXTENSION = <span class="string">&quot;.class&quot;</span>;</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> Map&lt;String, Set&lt;JavaFileObject&gt;&gt; PACKAGE_DEPENDENT_OBJECT_MAP = <span class="keyword">new</span> HashMap&lt;&gt;(<span class="number">256</span>);</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">processJar</span><span class="params">(URL packageFolderURL)</span> </span>&#123;</span><br><span class="line">  <span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="comment">// 位于springboot 当中的jar包是jar in jar，因此其URL的jar后面会带有!</span></span><br><span class="line">    String packageFolderUrl = packageFolderURL.toExternalForm();</span><br><span class="line">    <span class="keyword">int</span> lastJarSplit = packageFolderUrl.lastIndexOf(<span class="string">&quot;!&quot;</span>);</span><br><span class="line">    String jarUri = packageFolderUrl.substring(<span class="number">0</span>, lastJarSplit);</span><br><span class="line">    JarURLConnection jarConn = (JarURLConnection) packageFolderURL.openConnection();</span><br><span class="line">    String rootEntryName = jarConn.getEntryName();</span><br><span class="line">    Enumeration&lt;JarEntry&gt; entryEnum = jarConn.getJarFile().entries();</span><br><span class="line">    <span class="keyword">while</span> (entryEnum.hasMoreElements()) &#123;</span><br><span class="line">      JarEntry jarEntry = entryEnum.nextElement();</span><br><span class="line">      String name = jarEntry.getName();</span><br><span class="line">      <span class="keyword">if</span> (name.startsWith(rootEntryName) &amp;&amp; name.endsWith(CLASS_FILE_EXTENSION)) &#123;</span><br><span class="line">        URI uri = URI.create(jarUri + <span class="string">&quot;!/&quot;</span> + name);</span><br><span class="line">        String binaryName = name.replaceAll(<span class="string">&quot;/&quot;</span>, <span class="string">&quot;.&quot;</span>);</span><br><span class="line">        binaryName = binaryName.replaceAll(CLASS_FILE_EXTENSION + <span class="string">&quot;$&quot;</span>, <span class="string">&quot;&quot;</span>);</span><br><span class="line">        <span class="comment">// 包名，.class文件url</span></span><br><span class="line">        <span class="keyword">this</span>.addDependentObject(binaryName, uri);</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> RuntimeException(<span class="string">&quot;Wasn&#x27;t able to open &quot;</span> + packageFolderURL + <span class="string">&quot; as a jar file&quot;</span>, e);</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">void</span> <span class="title">addDependentObject</span><span class="params">(String binaryName, URI uri)</span> </span>&#123;</span><br><span class="line">  String packageName = binaryName.substring(<span class="number">0</span>, binaryName.lastIndexOf(<span class="string">&quot;.&quot;</span>));</span><br><span class="line">  Set&lt;JavaFileObject&gt; packageFileObjects = PACKAGE_DEPENDENT_OBJECT_MAP.computeIfAbsent(packageName, s -&gt; <span class="keyword">new</span> LinkedHashSet&lt;&gt;());</span><br><span class="line">  packageFileObjects.add(<span class="keyword">new</span> CustomJavaFileObject(binaryName, uri));</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ol>
+   <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CustomJavaFileObject</span> <span class="keyword">implements</span> <span class="title">JavaFileObject</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> String binaryName;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> URI uri;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> String name;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">CustomJavaFileObject</span><span class="params">(String binaryName, URI uri)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">this</span>.uri = uri;</span><br><span class="line">        <span class="keyword">this</span>.binaryName = binaryName;</span><br><span class="line">        <span class="comment">// for FS based URI the path is not null, for JAR URI the scheme specific part is not null</span></span><br><span class="line">        name = uri.getPath() == <span class="keyword">null</span> ? uri.getSchemeSpecificPart() : uri.getPath();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> URI <span class="title">toUri</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> uri;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> InputStream <span class="title">openInputStream</span><span class="params">()</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        <span class="comment">// easy way to handle any URI!</span></span><br><span class="line">        <span class="keyword">return</span> uri.toURL().openStream();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> OutputStream <span class="title">openOutputStream</span><span class="params">()</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> UnsupportedOperationException();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getName</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> name;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Reader <span class="title">openReader</span><span class="params">(<span class="keyword">boolean</span> ignoreEncodingErrors)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> UnsupportedOperationException();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> CharSequence <span class="title">getCharContent</span><span class="params">(<span class="keyword">boolean</span> ignoreEncodingErrors)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> UnsupportedOperationException();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Writer <span class="title">openWriter</span><span class="params">()</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> UnsupportedOperationException();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">long</span> <span class="title">getLastModified</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">delete</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> UnsupportedOperationException();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Kind <span class="title">getKind</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> Kind.CLASS;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isNameCompatible</span><span class="params">(String simpleName, Kind kind)</span> </span>&#123;</span><br><span class="line">        String baseName = simpleName + kind.extension;</span><br><span class="line">        <span class="keyword">return</span> kind.equals(getKind())</span><br><span class="line">                &amp;&amp; (baseName.equals(getName())</span><br><span class="line">                || getName().endsWith(<span class="string">&quot;/&quot;</span> + baseName));</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> NestingKind <span class="title">getNestingKind</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> UnsupportedOperationException();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Modifier <span class="title">getAccessLevel</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> UnsupportedOperationException();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">binaryName</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> binaryName;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">toString</span><span class="params">()</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;CustomJavaFileObject&#123;&quot;</span> +</span><br><span class="line">                <span class="string">&quot;uri=&quot;</span> + uri +</span><br><span class="line">                <span class="string">&#x27;&#125;&#x27;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<ol start="6">
+<li><p>获取源代码</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">List&lt;JavaFileObject&gt; javaFileObjects = Lists.newArrayList(<span class="keyword">new</span> StringJavaFileObject(className, javaCode));</span><br></pre></td></tr></table></figure>
+
+<p>StringJavaFileObject</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">StringJavaFileObject</span> <span class="keyword">extends</span> <span class="title">SimpleJavaFileObject</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * java code</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> String content;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> className class name</span></span><br><span class="line"><span class="comment">     * <span class="doctag">@param</span> content   class content</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">StringJavaFileObject</span><span class="params">(String className, String content)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>(URI.create(<span class="string">&quot;string:///&quot;</span> + className.replace(<span class="string">&#x27;.&#x27;</span>, <span class="string">&#x27;/&#x27;</span>)</span><br><span class="line">                + Kind.SOURCE.extension), Kind.SOURCE);</span><br><span class="line">        <span class="keyword">this</span>.content = content;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 实现getCharContent，使得JavaCompiler可以从content获取java源码</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">getCharContent</span><span class="params">(<span class="keyword">boolean</span> ignoreEncodingErrors)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> content;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+</li>
+<li><p><strong>自定义JavaFileManager</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CustomJavaFileManager</span> <span class="keyword">implements</span> <span class="title">JavaFileManager</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> CustomClassLoader customClassLoader;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> StandardJavaFileManager standardFileManager;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> PackageInternalsFinder finder;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> ClassLoader <span class="title">getClassLoader</span><span class="params">(JavaFileManager.Location location)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// 调用task.call()的时候会调用到springboot中项目中，如果直接返回的是springboot的classLoader，就会报错</span></span><br><span class="line">        <span class="comment">// 这里编译不能用springboot的原因是：springboot的loader重写了某些方法(loadClass)，会导致资源文件加载不到</span></span><br><span class="line">        <span class="keyword">return</span> customClassLoader;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> String <span class="title">inferBinaryName</span><span class="params">(Location location, JavaFileObject file)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (file <span class="keyword">instanceof</span> DynamicConfigurationJavaFileObject) &#123;</span><br><span class="line">            <span class="keyword">return</span> ((CustomJavaFileObject) file).binaryName();</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="comment">// if it&#x27;s not CustomJavaFileObject, then it&#x27;s coming from standard file manager - let it handle the file</span></span><br><span class="line">            <span class="keyword">return</span> standardFileManager.inferBinaryName(location, file);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isSameFile</span><span class="params">(FileObject a, FileObject b)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> standardFileManager.isSameFile(a, b);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">handleOption</span><span class="params">(String current, Iterator&lt;String&gt; remaining)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> standardFileManager.handleOption(current, remaining);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">hasLocation</span><span class="params">(Location location)</span> </span>&#123;</span><br><span class="line">        <span class="comment">// we don&#x27;t care about source and other location types - not needed for compilation</span></span><br><span class="line">        <span class="keyword">return</span> location == StandardLocation.CLASS_PATH || location == StandardLocation.PLATFORM_CLASS_PATH;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> JavaFileObject <span class="title">getJavaFileForInput</span><span class="params">(Location location, String className, JavaFileObject.Kind kind)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        <span class="keyword">throw</span> <span class="keyword">new</span> UnsupportedOperationException();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> FileObject <span class="title">getFileForInput</span><span class="params">(Location location, String packageName, String relativeName)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> standardFileManager.getFileForInput(location, packageName, relativeName);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> FileObject <span class="title">getFileForOutput</span><span class="params">(Location location, String packageName, String relativeName, FileObject sibling)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> standardFileManager.getFileForOutput(location, packageName, relativeName, sibling);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">flush</span><span class="params">()</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        <span class="comment">// do nothing</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">close</span><span class="params">()</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        <span class="comment">// do nothing</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 决定动态编译速度的就是这个方法，这个方法是根据包名找对应的编译资源文件</span></span><br><span class="line"><span class="comment">     * 如果无脑返回大量的FileObject，编译的速度就会很慢</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> Iterable&lt;JavaFileObject&gt; <span class="title">list</span><span class="params">(Location location, String packageName, Set&lt;JavaFileObject.Kind&gt; kinds, <span class="keyword">boolean</span> recurse)</span> <span class="keyword">throws</span> IOException </span>&#123;</span><br><span class="line">        <span class="comment">// let standard manager hanfle</span></span><br><span class="line">        <span class="keyword">if</span> (kinds.contains(JavaFileObject.Kind.CLASS)) &#123;</span><br><span class="line">            <span class="keyword">if</span> (packageName.startsWith(<span class="string">&quot;java&quot;</span>)) &#123;</span><br><span class="line">                <span class="comment">// a hack to let standard manager handle locations like &quot;java.lang&quot; or &quot;java.util&quot;.</span></span><br><span class="line">                <span class="comment">// Prob would make sense to join results of standard manager with those of my finder here</span></span><br><span class="line">                <span class="keyword">return</span> standardFileManager.list(location, packageName, kinds, recurse);</span><br><span class="line">            &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                <span class="comment">// app specific classes are here</span></span><br><span class="line">                <span class="comment">// 通过刚才的PACKAGE_DEPENDENT_OBJECT_MAP获取的List&lt;JavaFileObject&gt;</span></span><br><span class="line">                <span class="keyword">return</span> finder.findFileObjectByPackageName(packageName);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> Collections.emptyList();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">int</span> <span class="title">isSupportedOption</span><span class="params">(String option)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> -<span class="number">1</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/**</span></span><br><span class="line"><span class="comment">     * 将JavaFileObject对象的引用交给JavaCompiler，让它将编译好后的Class文件装载进来</span></span><br><span class="line"><span class="comment">     */</span></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> JavaFileObject <span class="title">getJavaFileForOutput</span><span class="params">(Location location, String className, JavaFileObject.Kind kind, FileObject sibling)</span> </span>&#123;</span><br><span class="line">          <span class="comment">// 下面的classloader</span></span><br><span class="line">        <span class="keyword">return</span> customClassLoader.saveCompiledFileObject(className, kind);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ol>
+<ol start="8">
+<li><p><strong>自定义classloader</strong></p>
+<p>​    根据双亲委派机制，在类加载过程中，找一个类，先是由最顶层的父加载器来寻找，找不到则交给下一级的子加载器寻找。</p>
+<p>​    因此，在加载动态类过程中，需要用到一些之前已有的类，可以通过父类加载器获取到；而自定义的类，则通过该加载器来进行类加载。</p>
+<p>​    这样，在调用<code>loadClass</code>的过程中：一些已有的类，会调用父加载器(springboot类加载器)的findClass方法；</p>
+<p>而对于自定义的类，由于springboot类加载器是没有加载到这个类的，因此最终会走到该类加载器的findClass，最终调用defineClass由该加载器加载自定义类。</p>
+<p>好处：</p>
+<ol>
+<li>规范，遵守了类加载器的双亲委派机制（如无特殊情况，不会破坏类加载器的双亲委派机制）。无需重写defindClass方法（jdk不建议重写defineClass，尽管该方法是protected修饰，这是jdk1.1的历史遗留问题）。</li>
+<li>自定义的类由自定义的类加载器加载，这样如果自定义类有改动，可以重新创建一个类加载器，就可以重新对该类进行加载，<strong>无需担心因为类重名而无法重新加载的问题</strong>。</li>
+<li>此外，原来的类加载器被回收了，里面加载的类资源也会跟着回收。</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 实现了&#123;<span class="doctag">@link</span> ClassLoader#findClass(String)&#125;方法，不必破坏原有的双亲委派机制</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">CustomClassLoader</span> <span class="keyword">extends</span> <span class="title">ClassLoader</span> </span>&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> String FILE_REGEX = <span class="string">&quot;com.example.xxx&quot;</span>;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/** 保存编译后Class文件的对象 */</span></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">final</span> Map&lt;String, BytesJavaFileObject&gt; fileObjectHashMap = <span class="keyword">new</span> HashMap&lt;&gt;();</span><br><span class="line"></span><br><span class="line">    <span class="comment">/** 将springboot类加载器作为父类加载器 */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">CustomClassLoader</span><span class="params">(ClassLoader parent)</span> </span>&#123;</span><br><span class="line">        <span class="keyword">super</span>(parent);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">protected</span> Class&lt;?&gt; findClass(String name) <span class="keyword">throws</span> ClassNotFoundException &#123;</span><br><span class="line">        <span class="keyword">if</span> (name.matches(FILE_REGEX)) &#123;</span><br><span class="line">            <span class="keyword">byte</span>[] bytes = fileObjectHashMap.get(name).getBytes();</span><br><span class="line">              <span class="comment">// definedClass方法其实就是类的加载</span></span><br><span class="line">            <span class="keyword">return</span> defineClass(name, bytes, <span class="number">0</span>, bytes.length);</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">super</span>.findClass(name);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="comment">/** 该方法会被fileManager调用 */</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> JavaFileObject <span class="title">saveCompiledFileObject</span><span class="params">(String className, JavaFileObject.Kind kind)</span> </span>&#123;</span><br><span class="line">        fileObjectHashMap.put(className, <span class="keyword">new</span> BytesJavaFileObject(className, kind));</span><br><span class="line">        <span class="keyword">return</span> fileObjectHashMap.get(className);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>开始编译</p>
+<p>编译完成后，会调用<code>JavaFileManager#getJavaFileForOutput</code>方法，即将编译好的字节码交给<code>ClassLoader</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/** 编译参数 */</span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">final</span> List&lt;String&gt; COMPILE_OPTIONS = Collections.unmodifiableList(Arrays.asList(<span class="string">&quot;-encoding&quot;</span>, <span class="string">&quot;UTF-8&quot;</span>));</span><br><span class="line"></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> JavaCompiler compiler;</span><br><span class="line"><span class="keyword">private</span> <span class="keyword">final</span> DynamicConfigurationJavaFileManager fileManager; </span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">compile</span><span class="params">(String javaCode)</span> </span>&#123;</span><br><span class="line">  ...</span><br><span class="line">    <span class="comment">//使用编译选项可以改变默认编译行为。编译选项是一个元素为String类型的Iterable集合</span></span><br><span class="line">    StringWriter outWriter = <span class="keyword">new</span> StringWriter();</span><br><span class="line">  DiagnosticCollector&lt;JavaFileObject&gt; diagnostics = <span class="keyword">new</span> DiagnosticCollector&lt;&gt;();</span><br><span class="line">  JavaCompiler.CompilationTask task = compiler.getTask(outWriter, fileManager, diagnostics, COMPILE_OPTIONS, <span class="keyword">null</span>, javaFileObjects);</span><br><span class="line">  <span class="comment">// 编译源程序</span></span><br><span class="line">  <span class="keyword">boolean</span> result = task.call();</span><br><span class="line">  <span class="keyword">if</span> (!result) &#123;</span><br><span class="line">   <span class="comment">// 编译报错的处理，忽略</span></span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> result;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+</li>
+<li><p>类的加载</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 看第8点的说明</span></span><br><span class="line">Class&lt;?&gt; clazz = customClassLoader.loadClass(fullClassName);</span><br><span class="line">clazz.newInstance();</span><br></pre></td></tr></table></figure>
+
+
+
+</li>
+</ol>
+<p>至此，一个自定义的实例就创建出来了。</p>
+
+    
+
+    
+
+    
+
+  </div>
+  <div class="article-info article-info-index">
+    
+    
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">Java</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">SpringBoot</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+    
+
+    
+    <p class="article-more-link">
+      <a class="article-more-a" href="/2022/05/30/%E8%A7%A3%E5%86%B3springboot%E4%B8%ADfat-jar%E7%9A%84%E5%8A%A8%E6%80%81%E7%BC%96%E8%AF%91%E9%97%AE%E9%A2%98/">展开全文 >></a>
+    </p>
+    
+
+    
+    <div class="clearfix"></div>
+  </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-《MySQL技术内幕-InnoDB存储引擎》学习笔记" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+  
+  
+    <h1 itemprop="name">
+	
+	  <a class="article-title" href="/2020/10/24/%E3%80%8AMySQL%E6%8A%80%E6%9C%AF%E5%86%85%E5%B9%95-InnoDB%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E%E3%80%8B%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" target="_blank">《MySQL技术内幕-InnoDB存储引擎》学习笔记</a>
+  
+    </h1>
+  
+
+
+  
+  
+<a href="/2020/10/24/%E3%80%8AMySQL%E6%8A%80%E6%9C%AF%E5%86%85%E5%B9%95-InnoDB%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E%E3%80%8B%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="archive-article-date">
+        <time datetime="2020-10-24T15:13:53.058Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-10-24</time>
+</a>
+
+  
+  
+    
+
+  
+  </header>
+  
+  <div class="article-entry" itemprop="articleBody">
+    
+    <p><strong>什么是数据库？</strong></p>
+<ul>
+<li><p>数据库是文件的集合，是依照某种数据模型组织起来并存放于二级存储器中的数据集合；</p>
+</li>
+<li><p>数据库实例是程序于用户与操作做系统之间的一层数据管理软件，用户对数据库数据的任何操作（如数据库的定义、查询、运行控制）都是在数据库实例下进行的，只有通过数据库实例才能和数据库打交道。
+    
+    <a class="article-more-a" href="/2020/10/24/%E3%80%8AMySQL%E6%8A%80%E6%9C%AF%E5%86%85%E5%B9%95-InnoDB%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E%E3%80%8B%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/#more">more >></a>
+    
+    
+
+    
+
+    
+
+  </div>
+  <div class="article-info article-info-index">
+    
+    
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">database</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">mysql</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+    
+
+    
+    <p class="article-more-link">
+      <a class="article-more-a" href="/2020/10/24/%E3%80%8AMySQL%E6%8A%80%E6%9C%AF%E5%86%85%E5%B9%95-InnoDB%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E%E3%80%8B%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">展开全文 >></a>
+    </p>
+    
+
+    
+    <div class="clearfix"></div>
+  </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
     <article id="post-Java中关于异步的使用" class="article article-type-post  article-index" itemscope itemprop="blogPost">
   <div class="article-inner">
     
@@ -217,11 +485,11 @@
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">java -</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">Java</a>
         		</li>
       		 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">spring -</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">spring</a>
         		</li>
       		
 		</ul>
@@ -232,6 +500,101 @@
     
     <p class="article-more-link">
       <a class="article-more-a" href="/2020/10/04/Java%E4%B8%AD%E5%85%B3%E4%BA%8E%E5%BC%82%E6%AD%A5%E7%9A%84%E4%BD%BF%E7%94%A8/">展开全文 >></a>
+    </p>
+    
+
+    
+    <div class="clearfix"></div>
+  </div>
+  </div>
+</article>
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
+        </div>
+        
+        
+    </div>
+</aside>
+
+
+
+
+  
+    <article id="post-redis实战-学习笔记" class="article article-type-post  article-index" itemscope itemprop="blogPost">
+  <div class="article-inner">
+    
+      <header class="article-header">
+  
+  
+    <h1 itemprop="name">
+	
+	  <a class="article-title" href="/2020/09/10/redis%E5%AE%9E%E6%88%98-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" target="_blank">redis学习笔记</a>
+  
+    </h1>
+  
+
+
+  
+  
+<a href="/2020/09/10/redis%E5%AE%9E%E6%88%98-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="archive-article-date">
+        <time datetime="2020-09-10T12:30:04.317Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-09-10</time>
+</a>
+
+  
+  
+    
+
+  
+  </header>
+  
+  <div class="article-entry" itemprop="articleBody">
+    
+    <h2 id="Redis的持久化选项"><a href="#Redis的持久化选项" class="headerlink" title="Redis的持久化选项"></a>Redis的持久化选项</h2><p>Redis提供了两种持久化方法。</p>
+<ul>
+<li>快照（snapshotting)：将存在某一时刻的所有数据都写入硬盘中。</li>
+<li>只追加文件（append-only-file,AOF）：在执行写命令时，将被执行的写命令复制到硬盘里面。
+    
+    <a class="article-more-a" href="/2020/09/10/redis%E5%AE%9E%E6%88%98-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/#more">more >></a>
+    
+    
+
+    
+
+    
+
+  </div>
+  <div class="article-info article-info-index">
+    
+    
+	<div class="article-tag tagcloud">
+		<i class="icon-price-tags icon"></i>
+		<ul class="article-tag-list">
+			 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">redis</a>
+        		</li>
+      		 
+        		<li class="article-tag-list-item">
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">database</a>
+        		</li>
+      		
+		</ul>
+	</div>
+
+    
+
+    
+    <p class="article-more-link">
+      <a class="article-more-a" href="/2020/09/10/redis%E5%AE%9E%E6%88%98-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/">展开全文 >></a>
     </p>
     
 
@@ -413,11 +776,11 @@
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">Spring</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">Java</a>
         		</li>
       		 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">Java</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">Spring</a>
         		</li>
       		
 		</ul>
@@ -467,7 +830,7 @@
   <div class="outer">
     <div id="footer-info">
     	<div class="footer-left">
-    		&copy; 2020 <a href="http://wuisgoing.github.io/" target="_blank">WuIsGoing</a>
+    		&copy; 2020-2022 <a href="http://wuisgoing.github.io/" target="_blank">WuIsGoing</a>
     	</div>
       	<div class="footer-right">
 			
@@ -574,19 +937,15 @@
           <ul class="article-tag-list" q-show="showTags">
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color2">java -</a>
+                <a href="javascript:void(0)" class="js-tag color5">Java</a>
               </li>
              
               <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color4">spring -</a>
+                <a href="javascript:void(0)" class="js-tag color2">spring</a>
               </li>
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">Spring</a>
-              </li>
-             
-              <li class="article-tag-list-item">
-                <a href="javascript:void(0)" class="js-tag color5">Java</a>
               </li>
              
               <li class="article-tag-list-item">
@@ -595,6 +954,22 @@
              
               <li class="article-tag-list-item">
                 <a href="javascript:void(0)" class="js-tag color2">stream</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">redis</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color4">database</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">mysql</a>
+              </li>
+             
+              <li class="article-tag-list-item">
+                <a href="javascript:void(0)" class="js-tag color1">SpringBoot</a>
               </li>
             
             <div class="clearfix"></div>

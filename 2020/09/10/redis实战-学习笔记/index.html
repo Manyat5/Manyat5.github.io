@@ -6,17 +6,22 @@
   <meta name="renderer" content="webkit">
   <meta http-equiv="X-UA-Compatible" content="IE=edge" >
   <link rel="dns-prefetch" href="http://wuisgoing.github.io">
-  <title>Tag: Java | Coder Area</title>
+  <title>redis学习笔记 | Coder Area</title>
   <meta name="generator" content="hexo-theme-yilia-plus">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
   
-  <meta property="og:type" content="website">
-<meta property="og:title" content="Coder Area">
-<meta property="og:url" content="http://wuisgoing.github.io/tags/Java/index.html">
+  <meta name="description" content="Redis的持久化选项Redis提供了两种持久化方法。  快照（snapshotting)：将存在某一时刻的所有数据都写入硬盘中。 只追加文件（append-only-file,AOF）：在执行写命令时，将被执行的写命令复制到硬盘里面。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="redis学习笔记">
+<meta property="og:url" content="http://wuisgoing.github.io/2020/09/10/redis%E5%AE%9E%E6%88%98-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/index.html">
 <meta property="og:site_name" content="Coder Area">
+<meta property="og:description" content="Redis的持久化选项Redis提供了两种持久化方法。  快照（snapshotting)：将存在某一时刻的所有数据都写入硬盘中。 只追加文件（append-only-file,AOF）：在执行写命令时，将被执行的写命令复制到硬盘里面。">
 <meta property="og:locale">
+<meta property="article:published_time" content="2020-09-10T12:30:04.317Z">
+<meta property="article:modified_time" content="2020-11-26T03:28:44.581Z">
 <meta property="article:author" content="WuIsGoing">
-<meta property="article:tag" content="spring,java,源码,reactor">
+<meta property="article:tag" content="redis">
+<meta property="article:tag" content="database">
 <meta name="twitter:card" content="summary">
   
     <link rel="alternative" href="/atom.xml" title="Coder Area" type="application/atom+xml">
@@ -155,224 +160,416 @@
               class="anm-canvas"></canvas>
           </div>
           <div id="js-content" class="content-ll">
-            
-  
-  
+            <article id="post-redis实战-学习笔记" class="article article-type-post " itemscope itemprop="blogPost">
+  <div class="article-inner">
     
-    
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2022" class="archive-year">2022</a>
-        </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	
-<a href="/2022/05/30/%E8%A7%A3%E5%86%B3springboot%E4%B8%ADfat-jar%E7%9A%84%E5%8A%A8%E6%80%81%E7%BC%96%E8%AF%91%E9%97%AE%E9%A2%98/" class="archive-article-date">
-        <time datetime="2022-05-30T13:54:38.000Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2022-05-30</time>
-</a>
-
-        </div>
-    	 
+      <header class="article-header">
   
-    <h1 itemprop="name">
-	
-	  <a class="archive-article-title" href="/2022/05/30/%E8%A7%A3%E5%86%B3springboot%E4%B8%ADfat-jar%E7%9A%84%E5%8A%A8%E6%80%81%E7%BC%96%E8%AF%91%E9%97%AE%E9%A2%98/" target="_blank">解决springboot中fat-jar的动态编译问题</a>
   
+    <h1 class="article-title" itemprop="name">
+      redis学习笔记
     </h1>
   
 
 
-        <div class="article-info info-on-right">
-          
+  
+  
+<a href="/2020/09/10/redis%E5%AE%9E%E6%88%98-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" class="archive-article-date">
+        <time datetime="2020-09-10T12:30:04.317Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-09-10</time>
+</a>
+
+  
+  
+    
+<div style="margin-top:10px;">
+  <span class="post-time">
+    <span class="post-meta-item-icon">
+      <!-- fonts.scss -->
+      <!-- 百度字体平台:http://fontstore.baidu.com/static/editor/index.html -->
+      <i class="icon-statistics"></i>
+      <span class="post-meta-item-text"> 字数统计:</span>
+      <span class="post-count">5k字</span>
+    </span>
+  </span>
+
+  <span class="post-time">
+    &nbsp; | &nbsp;
+    <span class="post-meta-item-icon">
+      <i class="icon-book icon"></i>
+      <span class="post-meta-item-text"> 阅读时长≈</span>
+      <span class="post-count">18分</span>
+    </span>
+  </span>
+</div>
+
+
+  
+  </header>
+  
+  <div class="article-entry" itemprop="articleBody">
+    
+    <h2 id="Redis的持久化选项"><a href="#Redis的持久化选项" class="headerlink" title="Redis的持久化选项"></a>Redis的持久化选项</h2><p>Redis提供了两种持久化方法。</p>
+<ul>
+<li>快照（snapshotting)：将存在某一时刻的所有数据都写入硬盘中。</li>
+<li>只追加文件（append-only-file,AOF）：在执行写命令时，将被执行的写命令复制到硬盘里面。<a id="more"></a></li>
+</ul>
+<h3 id="快照持久化"><a href="#快照持久化" class="headerlink" title="快照持久化"></a>快照持久化</h3><ul>
+<li>系统发生崩溃，用户会丢失最近一次生成快照之后更改的所有数据。</li>
+<li>因此，快照持久化只适用于那些可以接受丢失一部分数据的应用。</li>
+</ul>
+<h4 id="创建快照的方式"><a href="#创建快照的方式" class="headerlink" title="创建快照的方式"></a>创建快照的方式</h4><ul>
+<li>client向redis发送<code>BGSAVE</code>命令来创建。Redis会调用fork来创建一个子进程，然后子进程负责将快照写入硬盘，父进程则继续命令请求。</li>
+<li>client向redis发送<code>SAVE</code>命令来创建。Redis-server接到命令，在快照创建完毕之前将不响应其他命令（阻塞？？有点像垃圾回收中的“stop the world”）。</li>
+<li>redis.conf设置了save配置选项。如<code>save 60 1000</code>，当条件满足设置时，redis触发一次<code>BGSAVE</code>,如该设置为60s内有1000个写操作即满足创建快照的条件。</li>
+<li>Redis通过<code>SHUTDOWN</code>命令接收到关闭服务器的请求时，或接收到标准<code>TERM</code>信号时，会先执行一个<code>SAVE</code>命令，阻塞所有客户端，不再执行客户端发送的命令，执行完<code>SAVE</code>后关闭服务器。</li>
+<li>当一个服务器连接另一个服务器（集群？？），并向对方发送<code>SYNC</code>命令来开始一次复制时，如果主服务器（是发送SYNC的服务器还是另一台？？）没有在或者刚刚执行<code>BGSAVE</code>操作，那么主服务器就会执行<code>BGSAVE</code>。</li>
+</ul>
+<h4 id="BGSAVE与SAVE的区别"><a href="#BGSAVE与SAVE的区别" class="headerlink" title="BGSAVE与SAVE的区别"></a>BGSAVE与SAVE的区别</h4><ul>
+<li><p><code>BGSAVE</code>创建快照需要创建子进程，如果数据量较大，创建子进程也会导致服务器停顿</p>
+</li>
+<li><p><code>SAVE</code>命令创建快照的速度要比<code>BGSAVE</code>快很多</p>
+</li>
+</ul>
+<h3 id="AOF持久化"><a href="#AOF持久化" class="headerlink" title="AOF持久化"></a>AOF持久化</h3><p>AOF持久化会将<strong>被执行的写命令</strong>写到AOF文件的末尾。因此，Redis只要从头到尾执行一次AOF文件包含的写命令，就可以恢复AOF文件所记录的数据集。</p>
+<ul>
+<li><strong>AOF持久化适用于不允许数据丢失的应用</strong></li>
+</ul>
+<p><strong>AOF配置</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 是否启用aof持久化</span></span><br><span class="line">appendonly no</span><br><span class="line"><span class="meta">#</span><span class="bash"> 多久将写入的内容同步到硬盘</span></span><br><span class="line">appendfsync everysec</span><br><span class="line"><span class="meta">#</span><span class="bash"> 在对AOF压缩的时候能否执行同步操作</span></span><br><span class="line">no-appendfsync-on-rewrite no</span><br><span class="line"><span class="meta">#</span><span class="bash"> 多久执行一次AOF压缩：AOF文件体积比上一次重写之后的体积大了至少一倍的时候，redis执行BGREWRITEAOF</span></span><br><span class="line">auto-aof-rewrite-percentage 100</span><br><span class="line"><span class="meta">#</span><span class="bash"> AOF文件大于64M且</span></span><br><span class="line">auto-aof-rewrite-min-size 64mb</span><br></pre></td></tr></table></figure>
+
+<p><strong>文件同步</strong></p>
+<p>在向硬盘写入文件时，至少会发生3件事。调用<code>file.write()</code>等类似方法对文件进行写入时，<strong>写入的内容先是会被存储到缓存区，然后操作系统会在将来的某个时候将缓冲区存储的内容写入硬盘</strong>。用户可以通过调用<code>file.flush()</code>方法来请求操作系统尽快地将缓冲区存储的数据写入硬盘中，但具体的写入时机仍然由操作系统决定。此外，还可以命令操作系统（如何命令？？）将文件同步（sync）到硬盘，<strong>同步操作会阻塞直到指定的文件被写入硬盘为止。</strong></p>
+<p><strong>appendfsync选项和同步频率</strong></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 每个写命令都要同步写入硬盘。会严重降低Redis的速度</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 同时redis的处理命令会受到硬盘的限制：转盘式硬盘每秒只能处理200个写命令，固态硬盘每秒能吹几万个写命令</span></span><br><span class="line">always</span><br><span class="line"><span class="meta">#</span><span class="bash"> 每秒执行一次同步（sync)</span></span><br><span class="line">everysec</span><br><span class="line"><span class="meta">#</span><span class="bash"> 让操作系统来决定何时应该进行同步</span></span><br><span class="line">no</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li><p>使用always选项这种不断写入少量数据的做法可能会引发严重的<strong>写入放大</strong>问题，降低硬盘寿命</p>
+</li>
+<li><p>everysec和no选项都是一次写入多个写命令。</p>
+</li>
+<li><p>使用no选项，如果硬盘处理写入操作的速度不够快，那么当缓冲区被等待写入硬盘的数据被填满时，Redis的写入操作将会被阻塞，并导致Redis处理命令请求的速度变慢，因此也不推荐。</p>
+</li>
+</ul>
+<h4 id="重写-压缩AOF文件"><a href="#重写-压缩AOF文件" class="headerlink" title="重写/压缩AOF文件"></a>重写/压缩AOF文件</h4><p>使用AOF会产生一些问题（也是AOF的缺点）：</p>
+<ul>
+<li>Redis会不断地将写命令记录到AOF文件，AOF文件的体积也会不断增长，会占据很大的空间。</li>
+<li>如果AOF文件很大，还原操作执行的时间就会很长。</li>
+</ul>
+<p>用户可以向Redis发送<code>BGREWRITEAOF</code>命令，命令会<strong>通过移除AOF文件中的冗余命令来重写AOF文件</strong></p>
+<ul>
+<li>redis会创建一个子进程，然后由子进程负责对AOF文件进行重写，并删除旧的AOF文件。</li>
+<li>跟快照持久化的<code>BGSAVE</code>一样，同样存在着因为创建子进程而导致的性能问题和内存占用问题。</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 当AOF文件的体积大于64MB，并且AOF文件的体积比上一次重写之后的体积大了至少一倍的时候</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> Redis执行BGREWRITEAOF命令</span></span><br><span class="line"><span class="meta">#</span><span class="bash"> 提高xxx-percentage选项可降低重写频率</span></span><br><span class="line">auto-aof-rewrite-percentage 100</span><br><span class="line">auto-aof-rewrite-min-size 64mb</span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="复制"><a href="#复制" class="headerlink" title="复制"></a>复制</h2><p>复制可以让其他服务器拥有一个不断地更新的数据副本，从而使得<strong>拥有数据副本的服务器可以用于处理客户端发送的读请求</strong>。</p>
+<h4 id="主从服务器"><a href="#主从服务器" class="headerlink" title="主从服务器"></a>主从服务器</h4><ul>
+<li><p>关系型数据库通常会使用一个<strong>主服务器(master)向多个从服务器（slave）发送更新</strong>，并使用<strong>从服务器来处理所有读请求</strong>。</p>
+</li>
+<li><p>用户可以通过设置额外的Redis来保存数据集的副本。在接收到主服务器发送的<strong>数据初始副本</strong>之后，client每次向master服务器写入时，slave服务器都会实时得到更新。</p>
+</li>
+<li><p>部署好master-slave服务器后，client就可以向任意一个服务器发送<strong>读请求</strong></p>
+</li>
+<li><p>客户端使用哪个服务器是否由主服务器负载分配？？？</p>
+</li>
+</ul>
+<h5 id="配置复制主从服务器"><a href="#配置复制主从服务器" class="headerlink" title="配置复制主从服务器"></a>配置复制主从服务器</h5><ul>
+<li>启动Redis时，指定了一个包含<code>salveof host port</code>选项的配置文件，Redis将根据该选项给定的IP地址和端口号来连接<strong>主服务器</strong>。</li>
+<li>运行当中的Redis，可以发送<code>SLAVEOF no one</code>命令来让服务器终止复制操作，不再接受主服务器的更新；也可以通过发送<code>SLAVEOF host port</code>命令来让当前Redis来开始复制一个新的服务器。</li>
+</ul>
+<h4 id="主从服务器的复制过程"><a href="#主从服务器的复制过程" class="headerlink" title="主从服务器的复制过程"></a>主从服务器的复制过程</h4><table>
+<thead>
+<tr>
+<th>步骤</th>
+<th>主服务器</th>
+<th>从服务器</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>1</td>
+<td>（等待命令进入）</td>
+<td>连接主服务器，发送SYNC命令</td>
+</tr>
+<tr>
+<td>2</td>
+<td>开始执行BGSAVE，并使用缓冲区记录BGSAVE之后执行的所有写命令</td>
+<td>根据配置决定是继续使用现有的数据来处理客户端的命令请求，还是向发送请求的客户端返回错误（表示现在没有数据？）</td>
+</tr>
+<tr>
+<td>3</td>
+<td>BGSAVE执行完毕，向从服务器发送快照文件，并在发送期间继续使用缓冲区记录被执行的写命令</td>
+<td>丢弃所有旧数据，载入主服务器发来的快照文件</td>
+</tr>
+<tr>
+<td>4</td>
+<td>快照文件发送完毕，开始向从服务器发送存储在缓冲区里面的写命令</td>
+<td>完成对快照文件的解释操作，像往常一样开始接受命令请求</td>
+</tr>
+<tr>
+<td>5</td>
+<td>缓冲区存储的写命令发送完毕；<strong>从现在开始，每执行一个写命令，就向从服务器发送相同的写命令</strong></td>
+<td>执行主服务器发来的所有存储在缓冲区里面的写命令。并从现在开始，接收并执行主服务器传来的每个写命令</td>
+</tr>
+</tbody></table>
+<ol>
+<li>从服务器连接主服务器mockito</li>
+<li>主服务器存储快照（此时如果有向从服务器的读请求，会返回过时的数据或错误）；此时若有写操作，主服务器会将写命令缓存到缓冲区</li>
+<li>并发送给从服务器，从服务器(先清空自己的所有数据）载入快照数据</li>
+<li>最后主服务器再将缓冲区的写命令发送给从服务器</li>
+<li>数据同步完成，现在主服务器每执行一个写命令，就会发送给其他从服务器也执行相同的写命令。</li>
+</ol>
+<h5 id="多个从服务器尝试连接一个主服务器的情况"><a href="#多个从服务器尝试连接一个主服务器的情况" class="headerlink" title="多个从服务器尝试连接一个主服务器的情况"></a>多个从服务器尝试连接一个主服务器的情况</h5><ul>
+<li>BGSAVE还未开始执行，所有从服务器都会接收到相同的快照</li>
+<li>BGSAVE正在执行或执行完毕，主服务器重新执行一遍流程</li>
+</ul>
+<h4 id="校验硬盘写入"><a href="#校验硬盘写入" class="headerlink" title="校验硬盘写入"></a>校验硬盘写入</h4><p>为了检验主服务器是否已经将写数据发送至从服务器，用户需要在向主服务器写入真正的数据之后，再向从服务器写入一个唯一的虚拟值，<strong>然后通过检查虚拟值是否存在于从服务器来判断写数据是否应到达从服务器。另一方面，判断数据是否已经被保存到硬盘里面则要困难的得多。</strong></p>
+<h2 id="处理系统故障"><a href="#处理系统故障" class="headerlink" title="处理系统故障"></a>处理系统故障</h2><h3 id="验证持久化文件（以判断是否故障）"><a href="#验证持久化文件（以判断是否故障）" class="headerlink" title="验证持久化文件（以判断是否故障）"></a>验证持久化文件（以判断是否故障）</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">redis-check-aof <span class="comment">#检查aof文件是否出错</span></span><br><span class="line">redis-check-dump <span class="comment">#检查快照文件是否出错    </span></span><br><span class="line">redis-check-aof --fix <span class="comment">#修复aof文件：扫描给定的AOF文件，寻找不确定或者不完整的命令，当发现第一个出错命令的时候，程序会删除出错的命令以及后面的所有命令。</span></span><br></pre></td></tr></table></figure>
+
+<p>ps：快照文件没有办法修复（中间的错误可能会导致快照文件的剩余部分无法被读取）</p>
+<h3 id="更换故障的服务器（主从服务器）"><a href="#更换故障的服务器（主从服务器）" class="headerlink" title="更换故障的服务器（主从服务器）"></a>更换故障的服务器（主从服务器）</h3><p>情景：A-主服务器，B-从服务器。A发生了故障，打算把C作为新的主服务器。</p>
+<p>步骤：</p>
+<pre><code> 1. 首先向B发送一个`SAVE`命令，让它创建一个新的快照文件
+ 2. 接着将这个快照文件发送给C，启动redis
+ 3. 让机器B称为机器C的从服务器</code></pre>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line">root@machine-b ~:$ redis-cli</span><br><span class="line">redis 127.0.0.1:6379&gt; SAVE</span><br><span class="line">OK</span><br><span class="line">redis 127.0.0.1:6379&gt; QUIT</span><br><span class="line"><span class="comment"># 发送快照文件</span></span><br><span class="line">root@machine-b ~:$ scp \</span><br><span class="line">&gt; /var/<span class="built_in">local</span>/redis/dump.rdb machine-c.vpn:/var/<span class="built_in">local</span>/redis/dump.rdb</span><br><span class="line">root@machine-c ~:$ redis-server start</span><br><span class="line">Starting Redis server...</span><br><span class="line">root@machine-c ~:$ <span class="built_in">exit</span></span><br><span class="line">root@machine-b ~:$ redis-cli</span><br><span class="line"><span class="comment"># 告知B，让它将机器C作为新的主服务器</span></span><br><span class="line">redis 127.0.0.1:6379&gt; SLAVEOF machine-c.vpn 6379</span><br><span class="line">OK</span><br><span class="line">redis 127.0.0.1:6379&gt; QUIT</span><br></pre></td></tr></table></figure>
+
+<h3 id="Redis事务"><a href="#Redis事务" class="headerlink" title="Redis事务"></a>Redis事务</h3><p>Redis的事务以特殊命令<code>MULTI</code>为开始，之后跟着用户传入的多个命令，最后以<code>EXEC</code>为结束。</p>
+<ul>
+<li><p>延迟执行事务</p>
+<p>因为Redis在执行事务的过程中，会延迟执行已入队的命令直到发送<code>EXEC</code>命令为止。这种做法称为流水线，它可以通过减少客户端与Redis之间的网络通信次数来提升Redis在执行多个命令时的性能。</p>
+</li>
+</ul>
+<h3 id="案例2——游戏买卖市场"><a href="#案例2——游戏买卖市场" class="headerlink" title="案例2——游戏买卖市场"></a>案例2——游戏买卖市场</h3><p>数据结构：</p>
+<ul>
+<li>每个用户一个hash，hash的名称为users:用户号码，hash里面存放着用户的名称和金币</li>
+<li>每个用户一个（仓库）set，set的名称为inventory:用户号码，里面存放着玩家的多个物品</li>
+<li>一个市场（zset)，存储数据格式：物品名.玩家id ，市场以物品的价格进行排序</li>
+</ul>
+<h4 id="MULTI、EXEC、WATCH、UNWATCH、DISCARD命令的使用"><a href="#MULTI、EXEC、WATCH、UNWATCH、DISCARD命令的使用" class="headerlink" title="MULTI、EXEC、WATCH、UNWATCH、DISCARD命令的使用"></a>MULTI、EXEC、WATCH、UNWATCH、DISCARD命令的使用</h4><p>在用户使用WATCH命令对键进行监听之后，知道用户执行EXEC命令的这段时间里面，如果有其他客户端抢先对任何被监听的键进行了替换、更新、删除等操作，那么当用户尝试执行EXEC命令的时候，事务将失败并返回一个错误（之后用户可以选择重试事务或者放弃事务）。通过使用WATCH、MULTI/EXEC、UNWATCH/DISCARD等命令，程序可以在执行某些重要操作的时候，通过确保自己正在使用的数据没有发生变化来避免数据出错。    </p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">MULTI <span class="comment">#标记事务的开始</span></span><br><span class="line">EXEC <span class="comment">#执行</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p><strong>步骤：</strong></p>
+<ol>
+<li>出售商品：监听（WATCH）卖家仓库，将要销售的商品添加到市场中，执行EXEC（如果执行后返回的结果为空，则说明事务废弃了，应该重试该操作或放弃该操作）。</li>
+<li>买家购买商品：对市场信息及买家进行监听，获取买家余额并确认余额充足，买家卖家个人约减增，买家卖家物品增减，执行EXEC。</li>
+</ol>
+<h4 id="为什么Redis没有实现典型的加锁功能？"><a href="#为什么Redis没有实现典型的加锁功能？" class="headerlink" title="==为什么Redis没有实现典型的加锁功能？=="></a>==为什么Redis没有实现典型的加锁功能？==</h4><p>在关系型数据库写入数据（Start Transaction）的时候会进行加锁，直到事务被提交（Commit）或者回滚。<strong>如果有其他客户端视图对被加锁的数据进行写入（不可提交读），那么客户端将被阻塞</strong>，直到第一个事务执行完毕为止。</p>
+<p>因为加锁有可能会造成长时间的等待，所以Redis为了尽可能地减少客户端的等待时间，并不会在执行WATCH命令时对数据进行加锁。相反地，<strong>Redis只会在数据已经被其他客户端抢先修改了的情况，通知执行了WATCH命令的客户端，这种做法被称为乐观锁，而关系数据库实际执行的加锁操作则被称为悲观锁</strong>。乐观锁的客户端永远不必花时间去等待第一个取得锁的客户端——它们只需要在自己的事务执行失败时进行重试就可以了。</p>
+<h3 id="非事务型流水线"><a href="#非事务型流水线" class="headerlink" title="非事务型流水线"></a>非事务型流水线</h3><p>被MULTI和EXEC包裹的命令在执行时不会被其他客户端打扰。而使用事务的其中一个好处就是底层的客户端会通过使用流水线来提高事务执行时的性能。</p>
+<h2 id="分布式锁"><a href="#分布式锁" class="headerlink" title="分布式锁"></a>分布式锁</h2><h4 id="为什么不能用WATCH、MULTI、EXEC事务命令完成分布式锁？"><a href="#为什么不能用WATCH、MULTI、EXEC事务命令完成分布式锁？" class="headerlink" title="为什么不能用WATCH、MULTI、EXEC事务命令完成分布式锁？"></a>为什么不能用WATCH、MULTI、EXEC事务命令完成分布式锁？</h4><p>WATCH、MULTI、EXEC组成的事务并不具有可扩展性，原因在于程序在尝试完成一个事务的时候，肯能会因为事务执行失败而反复地进行重试。重试速度虽然每次都很快，但是失败的概率也会很大，导致重试的次数很高，并且算上重试失败的时间，耗时并不低。</p>
+<h3 id="构建分布式锁"><a href="#构建分布式锁" class="headerlink" title="构建分布式锁"></a>构建分布式锁</h3><p>使用SETNX命令来构建分布式锁：尝试在键不存在的情况下，为键设置一个值，以此来获取锁；在获取锁失败的时候，函数会在给定的时限内进行重试，直到成功获取锁或者超过给定的时限为止（默认时限为10s）。</p>
+<h3 id="Redis-Pipelining"><a href="#Redis-Pipelining" class="headerlink" title="Redis Pipelining"></a>Redis Pipelining</h3><h4 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h4><p>Redis是Server-Client模式，它们之间的数据传输是通过网络请求/响应协议来进行的，请求响应的过程中总会消耗一部分时间在传输数据包的过程当中。这部分无用的时间被称为RTT</p>
+<h4 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h4><p>服务端可以处理新的请求即使客户端还没有处理响应结果，客户端可以一次发送多个命令给服务端，最后一次性读取返回结果。这样的话就省去了大部分的RTT。</p>
+<h2 id="哨兵模式"><a href="#哨兵模式" class="headerlink" title="哨兵模式"></a>哨兵模式</h2><p>哨兵模式给Redis提供了高可用性。其功能如下：</p>
+<ul>
+<li>监控：持续监控master和replica是否正常工作</li>
+<li>通知：当某个实例有异常时可以通过API通知系统管理员或程序</li>
+<li>自动失效备援(Automatic failovers)：当主服务器失效，哨兵会启动一个失效备援程序，将其他从服务器选举成新的主服务器，连接Redis的应用会通知redis的新IP地址</li>
+</ul>
+<h3 id="启动哨兵模式"><a href="#启动哨兵模式" class="headerlink" title="启动哨兵模式"></a>启动哨兵模式</h3><p>启动哨兵模式时必须指定配置文件，因为系统会保存当前的配置到该文件当中，再重启的时候继续使用该配置。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#mac homebrew安装的redis</span></span><br><span class="line">redis-sentinel /usr/<span class="built_in">local</span>/etc/redis-sentinel.conf</span><br><span class="line">redis-server /usr/<span class="built_in">local</span>/etc/redis-sentinel.conf --sentinel</span><br></pre></td></tr></table></figure>
+
+<h3 id="部署必知"><a href="#部署必知" class="headerlink" title="部署必知"></a>部署必知</h3><ol>
+<li>至少有三个redis实例</li>
+<li>TODO</li>
+</ol>
+<h3 id="配置"><a href="#配置" class="headerlink" title="配置"></a>配置</h3><p>只需要指定可能选举的master的监视哨兵，给每个监听的实例取一个别名。</p>
+<p>其中不需要定义从服务器的信息，哨兵会自动更新配置（添加上从服务器的配置信息）</p>
+<p>当一个从服务器被选举为主服务器时，配置就会被重写</p>
+<h5 id="配置示例"><a href="#配置示例" class="headerlink" title="配置示例"></a>配置示例</h5><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#指定监听的格式为</span></span><br><span class="line"><span class="comment">#sentinel monitor &lt;master-group-name&gt; &lt;ip&gt; &lt;port&gt; &lt;quorum&gt;</span></span><br><span class="line"><span class="comment">#其中，quorum的意思为：</span></span><br><span class="line"><span class="comment">#认为监听服务器宕机的哨兵数量只要大于等于quorum，则启动failover</span></span><br><span class="line"><span class="comment">#意为监听该地址的服务器</span></span><br><span class="line">sentinel monitor mymaster 127.0.0.1 6379 2</span><br><span class="line"><span class="comment">#其他配置选项格式为</span></span><br><span class="line"><span class="comment">#sentinel &lt;option_name&gt; &lt;master_name&gt; &lt;option_value&gt;</span></span><br><span class="line"><span class="comment">#down-after-milliseconds参数表示认为一个主服务器如何才算宕机，此处为60000没有响应哨兵的PING信号即算失效</span></span><br><span class="line">sentinel down-after-milliseconds mymaster 60000</span><br><span class="line">sentinel failover-timeout mymaster 180000</span><br><span class="line"><span class="comment">#parallel-syncs:当发生failover时，所有的节点会开始同步新的Master节点的数据，该参数指定同时发起复制的replicas个数，如果设置为1，则所有节点一个接一个发起复制，一个复制完了再发起复制。如果设置为2，则Master同一时刻把数据发往两个节点，造成大的网络开销。</span></span><br><span class="line"><span class="comment">#如果新的Master用旧的master数据，则不必所有replica都同步</span></span><br><span class="line">sentinel parallel-syncs mymaster 1</span><br><span class="line"></span><br><span class="line">sentinel monitor resque 192.168.1.3 6380 4</span><br><span class="line">sentinel down-after-milliseconds resque 10000</span><br><span class="line">sentinel failover-timeout resque 180000</span><br><span class="line">sentinel parallel-syncs resque 5</span><br></pre></td></tr></table></figure>
+
+<p>所有的配置参数在运行过程都可以使用<code>SENTINEL SET</code>命令来改变。    </p>
+<h3 id="官方案例"><a href="#官方案例" class="headerlink" title="官方案例"></a>官方案例</h3><h5 id="案例1：只有两个哨兵"><a href="#案例1：只有两个哨兵" class="headerlink" title="案例1：只有两个哨兵"></a>案例1：只有两个哨兵</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">+----+         +----+</span><br><span class="line">| M1 |---------| R1 |</span><br><span class="line">| S1 |         | S2 |</span><br><span class="line">+----+         +----+</span><br><span class="line"></span><br><span class="line">Configuration: quorum &#x3D; 1</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>如果M1宕机，R1被选举为leader，仅仅是表面上还能运行</li>
+<li>但如果两个哨兵同时宕机了，failover程序就不会运行了，系统就变得不可用了</li>
+</ul>
+<h5 id="案例2：三个哨兵"><a href="#案例2：三个哨兵" class="headerlink" title="案例2：三个哨兵"></a>案例2：三个哨兵</h5><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">            +----+</span><br><span class="line">       | M1 |</span><br><span class="line">       | S1 |</span><br><span class="line">       +----+</span><br><span class="line">          |</span><br><span class="line">+----+    |    +----+</span><br><span class="line">| R2 |----+----| R3 |</span><br><span class="line">| S2 |         | S3 |</span><br><span class="line">+----+         +----+</span><br><span class="line"></span><br><span class="line">Configuration: quorum &#x3D; 2</span><br></pre></td></tr></table></figure>
+
+<p>当M1宕机，S2和S3会选举新leader。</p>
+<h6 id="存在问题"><a href="#存在问题" class="headerlink" title="存在问题"></a>存在问题</h6><p>存在一种可能，当选举出新Leader时，由于Redis的复制是异步的，可能会丢失写操作数据，因为此时原来的Leader已经宕机。</p>
+<p>并且在还没选举出来前，Client还是会向原来的Leader进行写操作，这部分操作会永远丢失因为此时客户端是不知道原Leader已经宕机的。</p>
+<p>该问题可以通过配置来解决，通过下面配置，当leader宕机的时候，超过10s客户端就不能连接到redis了。当重新选举完毕，重写配置后，客户端才能对新的redis进行操作。</p>
+<p>但是，天下没有免费的午餐，这样配置当其他两台replica失效的时候就无法写入了。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#这两个配置默认是不配置的</span></span><br><span class="line"><span class="comment">#如果该master少于1个replicas的连接（可以写入），则停止写操作</span></span><br><span class="line">min-replicas-to-write 1</span><br><span class="line"><span class="comment">#replicas10秒内没有异步响应则说明失去replicas的连接</span></span><br><span class="line">min-replicas-max-lag 10</span><br></pre></td></tr></table></figure>
+
+<h5 id="案例3：将Client作为哨兵（存疑）"><a href="#案例3：将Client作为哨兵（存疑）" class="headerlink" title="案例3：将Client作为哨兵（存疑）"></a>案例3：将Client作为哨兵（存疑）</h5><p>针对案例1中的缺点，可以采用将哨兵放置于客户端的方式</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">      +----+         +----+</span><br><span class="line">      | M1 |----+----| R1 |</span><br><span class="line">      |    |    |    |    |</span><br><span class="line">      +----+    |    +----+</span><br><span class="line">                |</span><br><span class="line">   +------------+------------+</span><br><span class="line">   |            |            |</span><br><span class="line">   |            |            |</span><br><span class="line">+----+        +----+      +----+</span><br><span class="line">| C1 |        | C2 |      | C3 |</span><br><span class="line">| S1 |        | S2 |      | S3 |</span><br><span class="line">+----+        +----+      +----+</span><br><span class="line"></span><br><span class="line">Configuration: quorum &#x3D; 2</span><br></pre></td></tr></table></figure>
+
+
+
+
+
+<h2 id="附录"><a href="#附录" class="headerlink" title="附录"></a>附录</h2><h3 id="自动补全方案"><a href="#自动补全方案" class="headerlink" title="自动补全方案"></a>自动补全方案</h3><p>在web领域中，自动补全(autocomplete)是一种能够让用户在不进行搜索的情况下，快速找到所需东西的技术。自动补全一般会根据用户已输入的字母来查找已输入字母开头的单词。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">每个服务器的数百万个用户都需要有一个属于自己的联系人列表来存储最近联系过的100个人，所以我们需要在能够快速向列表里面添加用户或者删除用户的前提下，尽量减少存储这些联系人列表带来的内存消耗。</span><br></pre></td></tr></table></figure>
+
+<p>64匹马，有八个赛道，比无限次，每匹马每次跑相同的速度，比赛只能拿到名次，多少次能找到前四名。</p>
+<p>32匹，4组，16</p>
+
+    
+
+    
+
+    
+
+  </div>
+  <div class="article-info article-info-index">
+    
+    
 	<div class="article-tag tagcloud">
 		<i class="icon-price-tags icon"></i>
 		<ul class="article-tag-list">
 			 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">Java</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">redis</a>
         		</li>
       		 
         		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color1">SpringBoot</a>
+        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color4">database</a>
         		</li>
       		
 		</ul>
 	</div>
 
-          
+    
 
+    
+
+    
+    
+<div class="share-btn share-icons tooltip-left">
+  <div class="tooltip tooltip-east">
+    <span class="tooltip-item">
+      <a href="javascript:;" class="share-sns share-outer">
+        <i class="icon icon-share"></i>
+      </a>
+    </span>
+    <span class="tooltip-content">
+      <div class="share-wrap">
+        <div class="share-icons">
+          <a class="weibo share-sns" href="javascript:;" data-type="weibo">
+            <i class="icon icon-weibo"></i>
+          </a>
+          <!-- <a class="weixin share-sns wxFab" href="javascript:;" data-type="weixin">
+            <i class="icon icon-weixin"></i>
+          </a> -->
+          <a class="qq share-sns" href="javascript:;" data-type="qq">
+            <i class="icon icon-qq"></i>
+          </a>
+          <a class="douban share-sns" href="javascript:;" data-type="douban">
+            <i class="icon icon-douban"></i>
+          </a>
+          <a class="qzone share-sns" href="javascript:;" data-type="qzone">
+            <i class="icon icon-qzone"></i>
+          </a>
+          <a class="facebook share-sns" href="javascript:;" data-type="facebook">
+            <i class="icon icon-facebook"></i>
+          </a>
+          <a class="twitter share-sns" href="javascript:;" data-type="twitter">
+            <i class="icon icon-twitter"></i>
+          </a>
+          <a class="google share-sns" href="javascript:;" data-type="google">
+            <i class="icon icon-google"></i>
+          </a>
         </div>
-        <div class="clearfix"></div>
-    </header>
+      </div>
+    </span>
+  </div>
+</div>
+
+<div class="page-modal wx-share js-wx-box">
+    <a class="close js-modal-close" href="javascript:;"><i class="icon icon-close"></i></a>
+    <p>扫一扫，分享到微信</p>
+    <div class="wx-qrcode">
+     <!-- <img src="//pan.baidu.com/share/qrcode?url=http://wuisgoing.github.io/2020/09/10/redis%E5%AE%9E%E6%88%98-%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0/" alt="微信分享二维码"> -->
+    </div>
+</div>
+
+<div class="mask js-mask"></div>
+
+    
+    <div class="clearfix"></div>
+  </div>
   </div>
 </article>
+
+
+<nav id="article-nav">
   
-    
-    
-      
-        </div></section>
-      
-      
-      <section class="archives-wrap">
-        <div class="archive-year-wrap">
-          <a href="/archives/2020" class="archive-year">2020</a>
+    <a href="/2020/10/04/Java%E4%B8%AD%E5%85%B3%E4%BA%8E%E5%BC%82%E6%AD%A5%E7%9A%84%E4%BD%BF%E7%94%A8/" id="article-nav-newer" class="article-nav-link-wrap">
+      <i class="icon-circle-left"></i>
+      <div class="article-nav-title">
+        
+          Java中关于异步的使用
+        
+      </div>
+    </a>
+  
+  
+    <a href="/2020/08/15/Spring-in-action%E4%B9%8BReactor/" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">spring in action之Reactor</div>
+      <i class="icon-circle-right"></i>
+    </a>
+  
+</nav>
+
+
+<aside class="wrap-side-operation">
+    <div class="mod-side-operation">
+        
+        <div class="jump-container" id="js-jump-container" style="display:none;">
+            <a href="javascript:void(0)" class="mod-side-operation__jump-to-top">
+                <i class="icon-font icon-back"></i>
+            </a>
+            <div id="js-jump-plan-container" class="jump-plan-container" style="top: -11px;">
+                <i class="icon-font icon-plane jump-plane"></i>
+            </div>
         </div>
-        <div class="archives">
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	
-<a href="/2020/10/04/Java%E4%B8%AD%E5%85%B3%E4%BA%8E%E5%BC%82%E6%AD%A5%E7%9A%84%E4%BD%BF%E7%94%A8/" class="archive-article-date">
-        <time datetime="2020-10-04T02:13:48.598Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-10-04</time>
-</a>
+        
+        
+    </div>
+</aside>
 
-        </div>
-    	 
+
+
+
+
+
+
+
+
+
+  <div id="giteement-ctn"></div>
   
-    <h1 itemprop="name">
-	
-	  <a class="archive-article-title" href="/2020/10/04/Java%E4%B8%AD%E5%85%B3%E4%BA%8E%E5%BC%82%E6%AD%A5%E7%9A%84%E4%BD%BF%E7%94%A8/" target="_blank">Java中关于异步的使用</a>
+    <link rel="stylesheet" href="/lib/default.css">
+    <script src="/lib/giteement.browser.js"></script>
   
-    </h1>
-  
+  <script>
+  <!-- id: "redis学习笔记" -->
+  var giteement = new Giteement({
+    id: '20200910203004',
+    owner: 'wu_wenyi',
+    repo: 'hexo-blog-comment',
+    backcall_uri: 'https://wuisgoing.github.io',
+    oauth_uri: 'https://cors-anywhere.herokuapp.com/https://gitee.com/oauth/token',
+    oauth: {
+      client_id: 'db19ad3b78fbd17e56d67e9c2de391ace26608a154035f0d4fa2e6a1b7da37b2',
+      client_secret: '156cdf1df28318e0aa8eee67ce683fa30c293c6ca8a95f7fc32b107be70c70b2'
+    },
+  })
+  giteement.render('giteement-ctn')
+  </script>
 
 
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">Java</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">spring</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	
-<a href="/2020/08/15/Spring-in-action%E4%B9%8BReactor/" class="archive-article-date">
-        <time datetime="2020-08-15T06:46:58.430Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-08-15</time>
-</a>
-
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-	
-	  <a class="archive-article-title" href="/2020/08/15/Spring-in-action%E4%B9%8BReactor/" target="_blank">spring in action之Reactor</a>
-  
-    </h1>
-  
 
 
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">Java</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color3">Reactor</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">stream</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-    
-    
-    <article class="archive-article archive-type-post">
-  <div class="archive-article-inner">
-    <header class="archive-article-header">
-      	<div class="article-meta">
-	      	
-<a href="/2020/08/05/%E6%B7%B1%E5%85%A5SpringAOP/" class="archive-article-date">
-        <time datetime="2020-08-05T12:23:40.390Z" itemprop="datePublished"><i class="icon-calendar icon"></i>2020-08-05</time>
-</a>
-
-        </div>
-    	 
-  
-    <h1 itemprop="name">
-	
-	  <a class="archive-article-title" href="/2020/08/05/%E6%B7%B1%E5%85%A5SpringAOP/" target="_blank">深入SpringAOP</a>
-  
-    </h1>
-  
 
 
-        <div class="article-info info-on-right">
-          
-	<div class="article-tag tagcloud">
-		<i class="icon-price-tags icon"></i>
-		<ul class="article-tag-list">
-			 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color5">Java</a>
-        		</li>
-      		 
-        		<li class="article-tag-list-item">
-        			<a href="javascript:void(0)" class="js-tag article-tag-list-link color2">Spring</a>
-        		</li>
-      		
-		</ul>
-	</div>
-
-          
-
-        </div>
-        <div class="clearfix"></div>
-    </header>
-  </div>
-</article>
-  
-  
-    </div></section>
-  
-
-    
 
 
           </div>
@@ -401,9 +598,9 @@
 	var yiliaConfig = {
 		mathjax: false,
 		isHome: false,
-		isPost: false,
+		isPost: true,
 		isArchive: false,
-		isTag: true,
+		isTag: false,
 		isCategory: false,
 		open_in_new: true,
 		toc_hide_index: true,
